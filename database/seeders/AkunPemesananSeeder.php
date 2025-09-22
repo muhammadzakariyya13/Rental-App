@@ -14,27 +14,37 @@ class AkunPemesananSeeder extends Seeder
      */
     public function run(): void
     {
-        // Make sure Akun and Pemesanan tables have data
-        $akuns = Akun::all();
-        $pemesanans = Pemesanan::all();
-        
-        // Check if both tables have data
-        if ($akuns->count() > 0 && $pemesanans->count() > 0) {
-            // Create associations between users and bookings
+        try {
+            // Check if we have accounts and bookings
+            $akuns = Akun::all();
+            $pemesanans = Pemesanan::all();
+            
+            if ($akuns->isEmpty()) {
+                $this->command->error('No accounts found. Please run AkunSeeder first.');
+                return;
+            }
+            
+            if ($pemesanans->isEmpty()) {
+                $this->command->error('No bookings found. Please run PemesananSeeder first.');
+                return;
+            }
+            
+            // Create associations - using 'id' not 'id_akun' for the akun table
             AkunPemesanan::create([
-                'id_akun' => $akuns->first()->id_akun,
-                'id_pemesanan' => $pemesanans->first()->id_pemesanan
+                'id_akun' => $akuns->first()->id, // Changed from id_akun to id
+                'id_pemesanan' => $pemesanans->first()->id_pemesanan,
             ]);
             
-            // Create more associations if more records exist
+            // Add more associations if we have more data
             if ($akuns->count() > 1 && $pemesanans->count() > 1) {
                 AkunPemesanan::create([
-                    'id_akun' => $akuns[1]->id_akun,
-                    'id_pemesanan' => $pemesanans[1]->id_pemesanan
+                    'id_akun' => $akuns[1]->id, // Changed from id_akun to id
+                    'id_pemesanan' => $pemesanans[1]->id_pemesanan,
                 ]);
             }
-        } else {
-            echo "Please run AkunSeeder and PemesananSeeder before running AccountPemesananSeeder.\n";
+            
+        } catch (\Exception $e) {
+            $this->command->error('Failed to seed akun_pemesanan table: ' . $e->getMessage());
         }
     }
 }

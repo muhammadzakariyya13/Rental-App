@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AccountPemesanan extends Model
+class AkunPemesanan extends Model
 {
     use HasFactory;
 
@@ -14,12 +14,12 @@ class AccountPemesanan extends Model
      *
      * @var string
      */
-    protected $table = 'account_pemesanan';
+    protected $table = 'akun_pemesanan';
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $fillable = [
         'id_akun',
@@ -31,7 +31,7 @@ class AccountPemesanan extends Model
      */
     public function akun()
     {
-        return $this->belongsTo(Akun::class, 'id_akun', 'id_akun');
+        return $this->belongsTo(Akun::class, 'id_akun', 'id');
     }
 
     /**

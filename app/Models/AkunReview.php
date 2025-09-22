@@ -4,64 +4,43 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Akunreview extends Model
+class AkunReview extends Model
 {
     use HasFactory;
 
     /**
-     * Nama tabel yang terhubung dengan model ini.
+     * The table associated with the model.
      *
      * @var string
      */
     protected $table = 'akunreview';
 
     /**
-     * Primary key untuk model ini.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id_review';
-
-    /**
-     * Atribut yang dapat diisi secara massal (mass assignable).
+     * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'id_properti',
         'id_akun',
-        'rating',
-        'komentar',
-        'tanggal',
+        'id_properti',
+        'review_text',
+        'rating'
     ];
 
     /**
-     * Tipe data asli dari atribut yang perlu di-casting.
-     *
-     * @var array<string, string>
+     * Get the user that owns the review.
      */
-    protected $casts = [
-        'rating' => 'float',
-        'tanggal' => 'datetime',
-    ];
-
-    /**
-     * Mendefinisikan relasi "belongsTo" ke model Properti.
-     * Setiap review dimiliki oleh satu properti.
-     */
-    public function properti(): BelongsTo
+    public function akun()
     {
-        return $this->belongsTo(Properti::class, 'id_properti');
+        return $this->belongsTo(Akun::class, 'id_akun', 'id');
     }
 
     /**
-     * Mendefinisikan relasi "belongsTo" ke model Akun.
-     * Setiap review dimiliki oleh satu akun.
+     * Get the property that the review is for.
      */
-    public function akun(): BelongsTo
+    public function properti()
     {
-        return $this->belongsTo(Akun::class, 'id_akun');
+        return $this->belongsTo(Properti::class, 'id_properti', 'id_properti');
     }
 }

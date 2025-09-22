@@ -2,37 +2,29 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Database\Seeders\ReviewSeeder;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // User::factory(10)->create();
-        // Panggil seeders dalam urutan yang benar
+        // Call seeders in the correct order (respecting foreign key dependencies)
         $this->call([
-            AccountSeeder::class,
-            // PemesananSeeder::class, // Uncomment jika Anda juga membuat seeder untuk pemesanan
-            AccountPemesananSeeder::class,
-        ]);
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-        
-        $this->call([
+            // Users/accounts first
+            AkunSeeder::class,
+            
+            // Independent entities
+            PropertiSeeder::class,
+            
+            // Entities with foreign keys
+            PemesananSeeder::class,
             KontrakSeeder::class,
-        ]);
-
-        // Create 5 users first
-        User::factory(5)->create();
-        
-        // Run the ReviewSeeder
-        $this->call([
+            
+            // Pivot tables and relationships
+            AkunPemesananSeeder::class,
+            
+            // Reviews depend on users and properties
+            AkunReviewSeeder::class,
             ReviewSeeder::class
         ]);
     }

@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Akun;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class AkunSeeder extends Seeder
 {
@@ -16,19 +15,17 @@ class AkunSeeder extends Seeder
     {
         // Create sample user accounts
         Akun::create([
-            'name' => 'John Doe',
+            'phone_number' => '081234567890',
             'email' => 'john@example.com',
+            'username' => 'johndoe',
             'password' => Hash::make('password123'),
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
         ]);
         
         Akun::create([
-            'name' => 'Jane Smith',
+            'phone_number' => '089876543210',
             'email' => 'jane@example.com',
+            'username' => 'janesmith',
             'password' => Hash::make('password123'),
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
         ]);
     }
 }

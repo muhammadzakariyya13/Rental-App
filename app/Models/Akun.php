@@ -8,15 +8,21 @@ use Illuminate\Notifications\Notifiable;
 
 class Akun extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'akun';
 
     /**
      * The primary key for the model.
      *
      * @var string
      */
-    protected $primaryKey = 'id_akun';
+    protected $primaryKey = 'id';  // Changed from 'id_akun' to 'id' to match migration
 
     /**
      * The attributes that are mass assignable.
@@ -24,8 +30,9 @@ class Akun extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'phone_number',
         'email',
+        'username',
         'password',
     ];
 
