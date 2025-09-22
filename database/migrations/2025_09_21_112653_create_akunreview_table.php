@@ -1,42 +1,26 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('akunreview', function (Blueprint $table) {
-            // Sesuai dengan `id_review` (BIGINT, UNSIGNED, AUTO_INCREMENT)
-            $table->id('id_review');
-
-            // Sesuai dengan `id_properti` dan `id_akun` (BIGINT, UNSIGNED)
-            // Sekaligus membuat foreign key constraint
-            $table->foreignId('id_properti')->constrained('properti');
-            $table->foreignId('id_akun')->constrained('akun');
-
-            // Sesuai dengan kolom `rating`
-            $table->float('rating');
-
-            // Sesuai dengan kolom `komentar`
-            $table->text('komentar');
-
-            // Sesuai dengan kolom `tanggal`
-            $table->timestamp('tanggal');
-            
-            // Membuat kolom `created_at` dan `updated_at`
+            $table->id();
+            $table->unsignedBigInteger('id_akun');
+            $table->unsignedBigInteger('id_properti');
+            $table->text('review_text');
+            $table->integer('rating');
             $table->timestamps();
+
+            // Change to reference 'id' in the users table
+            $table->foreign('id_akun')->references('id')->on('users');
+            $table->foreign('id_properti')->references('id_properti')->on('properti');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('akunreview');

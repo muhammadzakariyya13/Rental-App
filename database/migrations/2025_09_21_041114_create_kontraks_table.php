@@ -6,7 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('kontraks', function (Blueprint $table) {
@@ -18,9 +20,8 @@ return new class extends Migration
             $table->decimal('harga_sewa', 10, 2);
             $table->timestamps();
 
-            // Definisi foreign key
-            $table->foreign('id_properti')->references('id_properti')->on('propertis')->onDelete('cascade');
-            $table->foreign('id_pemesanan')->references('id_pemesanan')->on('pemesanans')->onDelete('cascade');
+            $table->foreign('id_properti')->references('id_properti')->on('properti')->onDelete('cascade');
+            $table->foreign('id_pemesanan')->references('id_pemesanan')->on('pemesanan')->onDelete('cascade');
         });
     }
 
