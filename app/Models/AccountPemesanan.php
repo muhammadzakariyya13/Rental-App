@@ -29,9 +29,9 @@ class AccountPemesanan extends Model
     /**
      * Get the account that owns the record.
      */
-    public function account()
+    public function akun()
     {
-        return $this->belongsTo(Account::class, 'id_akun', 'id_akun');
+        return $this->belongsTo(Akun::class, 'id_akun', 'id_akun');
     }
 
     /**
