@@ -17,7 +17,11 @@ class ReviewFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'id_akun' => fake()->numberBetween(1, 5),
+            'id_properti' => fake()->numberBetween(1, 20),
+            'komentar' => fake()->paragraph(),
+            'rating' => fake()->numberBetween(1, 5),
+            'tanggal' => fake()->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
         ];
     }
 }
