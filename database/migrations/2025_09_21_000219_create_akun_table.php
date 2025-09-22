@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('account', function (Blueprint $table) {
-            $table->id('id_akun'); 
+        Schema::create('akun', function (Blueprint $table) {
+            $table->id(); 
             $table->string('phone_number');
             $table->string('email')->unique();
             $table->string('username')->unique();
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('account');
+        Schema::dropIfExists('akun');
     }
 };

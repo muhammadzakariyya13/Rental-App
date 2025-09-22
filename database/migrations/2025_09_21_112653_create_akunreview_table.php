@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Change to reference 'id' in the users table
-            $table->foreign('id_akun')->references('id')->on('users');
+            $table->foreign('id_akun')->references('id')->on('akun')->onDelete('cascade');
             $table->foreign('id_properti')->references('id_properti')->on('properti');
         });
     }

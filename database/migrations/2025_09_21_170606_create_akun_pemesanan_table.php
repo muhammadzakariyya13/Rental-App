@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('account_pemesanan', function (Blueprint $table) {
+        Schema::create('akun_pemesanan', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_akun');
             $table->unsignedBigInteger('id_pemesanan');
             $table->timestamps();
             
             // Make sure the table name matches exactly what's in your database
-            $table->foreign('id_akun')->references('id_akun')->on('account')->onDelete('cascade');
+            $table->foreign('id_akun')->references('id')->on('akun')->onDelete('cascade');
             $table->foreign('id_pemesanan')->references('id_pemesanan')->on('pemesanan')->onDelete('cascade');
             
             $table->unique(['id_akun', 'id_pemesanan']);
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('account_pemesanan');
+        Schema::dropIfExists('akun_pemesanan');
     }
 };

@@ -27,7 +27,7 @@ return new class extends Migration
             $table->foreign('id_properti')->references('id_properti')->on('properti')->onDelete('cascade');
             
             // If you have a users table with id column (default Laravel)
-            $table->foreign('id_akun')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('id_akun')->references('id')->on('akun')->onDelete('cascade');
             
             // Or if you have an account table with id_akun column, use this instead:
             // $table->foreign('id_akun')->references('id_akun')->on('account')->onDelete('cascade');
