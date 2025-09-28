@@ -1,5 +1,4 @@
 <?php
-
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -8,24 +7,24 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Call seeders in the correct order (respecting foreign key dependencies)
+        // RBAC seeders (harus duluan karena jadi foreign key di akun)
         $this->call([
-            // Users/accounts first
+            RoleSeeder::class,
+            PermissionSeeder::class,
+            RolePermissionSeeder::class,
             AkunSeeder::class,
-            
-            // Independent entities
+
+            // Data utama aplikasi
             PropertiSeeder::class,
-            
-            // Entities with foreign keys
             PemesananSeeder::class,
             KontrakSeeder::class,
-            
-            // Pivot tables and relationships
+
+            // Pivot dan relasi lain
             AkunPemesananSeeder::class,
-            
-            // Reviews depend on users and properties
+
+            // Reviews (tergantung akun & properti)
             AkunReviewSeeder::class,
-            ReviewSeeder::class
+            ReviewSeeder::class,
         ]);
     }
 }

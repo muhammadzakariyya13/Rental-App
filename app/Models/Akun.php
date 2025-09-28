@@ -1,75 +1,85 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Akun extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
     protected $table = 'akun';
+    protected $primaryKey = 'id';
 
-    /**
-     * The primary key for the model.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';  // Changed from 'id_akun' to 'id' to match migration
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
+        'nama',
         'phone_number',
         'email',
         'username',
         'password',
+        'role_id',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Relasi ke Role (setiap akun punya satu role)
      */
-    protected function casts(): array
+    public function role(): BelongsTo
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
-    public function reviews()
+    /**
+     * Relasi ke Review (satu akun bisa punya banyak review)
+     */
+    public function reviews(): HasMany
     {
         return $this->hasMany(Review::class, 'id_akun');
     }
 
     /**
-     * Get the pemesanan records associated with the account.
+     * Relasi ke Pemesanan (satu akun bisa punya banyak pemesanan)
      */
-    public function pemesanan()
+    public function pemesanan(): HasMany
     {
-        return $this->belongsToMany(Pemesanan::class, 'account_pemesanan', 'id_akun', 'id_pemesanan')
-                    ->withTimestamps();
+        return $this->hasMany(Pemesanan::class, 'id_akun');
+    }
+
+    /**
+     * Cek apakah user punya permission tertentu (RBAC)
+     */
+    public function hasPermission(string $permission): bool
+    {
+        return $this->role?->hasPermission($permission) ?? false;
+    }
+
+    /**
+     * Helper RBAC: cek role user
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role?->nama === 'admin';
+    }
+
+    public function isOfficer(): bool
+    {
+        return $this->role?->nama === 'officer';
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->role?->nama === 'customer';
     }
 }

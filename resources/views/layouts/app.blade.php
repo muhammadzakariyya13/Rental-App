@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Rental App') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased">
@@ -12,11 +12,14 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
-                        <a href="{{ route('dashboard') }}" class="text-xl font-semibold">Parking System</a>
+                        <a href="{{ route('dashboard') }}" class="text-xl font-semibold">Rental App</a>
                     </div>
                     <div class="flex items-center space-x-4">
                         @auth
-                            <span class="text-gray-700">Hello, {{ Auth::user()->name }}</span>
+                            <span class="text-gray-700">
+                                Hello, {{ Auth::user()->nama }}
+                                ({{ Auth::user()->role->nama ?? '-' }})
+                            </span>
                             <form method="POST" action="{{ route('logout') }}" class="inline">
                                 @csrf
                                 <button type="submit" class="text-red-600 hover:text-red-900">Logout</button>

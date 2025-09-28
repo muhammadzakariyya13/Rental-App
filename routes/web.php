@@ -1,20 +1,28 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PropertiController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+// Route untuk dashboard admin (tambahkan middleware jika perlu)
+Route::get('/admin', [AdminController::class, 'index'])
+    ->middleware(['auth', 'verified']) // opsional: batasi hanya user login & verifikasi
+    ->name('admin.dashboard');
+
+// Route untuk properti
+Route::get('/properti', [PropertiController::class, 'index'])
+    ->name('properti.index');
+Route::get('/properti/{id}', [PropertiController::class, 'show'])
+    ->name('properti.show');
+
+// Route dashboard (hanya untuk user yang sudah login & terverifikasi)
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
+// Aktifkan route auth dari Breeze (login, register, dll)
 require __DIR__.'/auth.php';
