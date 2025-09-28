@@ -12,11 +12,18 @@ class Akun extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'akun';
+
+    /**
      * The primary key for the model.
      *
      * @var string
      */
-    protected $primaryKey = 'id_akun';
+    protected $primaryKey = 'id';
 
     /**
      * The attributes that are mass assignable.
@@ -24,9 +31,10 @@ class Akun extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'username',
         'email',
         'password',
+        'phone_number',
     ];
 
     /**
@@ -64,5 +72,40 @@ class Akun extends Authenticatable
     {
         return $this->belongsToMany(Pemesanan::class, 'account_pemesanan', 'id_akun', 'id_pemesanan')
                     ->withTimestamps();
+    }
+
+    /**
+     * Akun dapat memiliki banyak role
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id');
+    }
+
+    /**
+     * Cek apakah user memiliki role tertentu
+     */
+    public function hasRole($role)
+    {
+        if (is_string($role)) {
+            return $this->roles->contains('name', $role);
+        }
+        
+        // Jika $role adalah collection dari roles
+        return !! $role->intersect($this->roles)->count();
+    }
+
+    /**
+     * Cek apakah user memiliki permission tertentu
+     */
+    public function hasPermission($permission)
+    {
+        foreach ($this->roles as $role) {
+            if ($role->permissions->contains('name', $permission)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }

@@ -11,29 +11,33 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // User::factory(10)->create();
-        // Panggil seeders dalam urutan yang benar
+        // Jalankan Role dan Permission seeder terlebih dahulu
         $this->call([
-            AccountSeeder::class,
-            // PemesananSeeder::class, // Uncomment jika Anda juga membuat seeder untuk pemesanan
-            AccountPemesananSeeder::class,
-        ]);
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            RoleSeeder::class,
+            PermissionSeeder::class,
+            RolePermissionSeeder::class,
         ]);
         
+        // Jalankan User seeder dengan role
         $this->call([
-            KontrakSeeder::class,
+            UserRoleSeeder::class,
         ]);
 
-        // Create 5 users first
-        User::factory(5)->create();
-        
-        // Run the ReviewSeeder
+        // Seeder yang lain dapat dijalankan juga
         $this->call([
-            ReviewSeeder::class
+            // AccountSeeder::class,
+            // PemesananSeeder::class,
+            // AccountPemesananSeeder::class,
+            // KontrakSeeder::class,
+            // ReviewSeeder::class,
         ]);
+        
+        // Uncomment bagian-bagian ini jika diperlukan
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
+        
+        // User::factory(5)->create();
     }
 }
