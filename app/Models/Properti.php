@@ -34,6 +34,7 @@ class Properti extends Model
         'nama',
         'harga',
         'deskripsi',
+        'foto',
         'status',
     ];
 
@@ -46,4 +47,16 @@ class Properti extends Model
     protected $casts = [
         'harga' => 'decimal:2',
     ];
+
+    // Relasi: Properti memiliki banyak Pemesanan
+    public function pemesanan()
+    {
+        return $this->hasMany(Pemesanan::class, 'id_properti', 'id_properti');
+    }
+
+    // Relasi: Properti memiliki banyak Review
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'id_properti', 'id_properti');
+    }
 }

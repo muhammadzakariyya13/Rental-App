@@ -25,7 +25,7 @@ class Pemesanan extends Model
     // Relasi ke Akun
     public function akun()
     {
-        return $this->belongsTo(Akun::class, 'id_akun', 'id_akun');
+        return $this->belongsTo(Akun::class, 'id_akun', 'id');
     }
 
     // Relasi ke Properti

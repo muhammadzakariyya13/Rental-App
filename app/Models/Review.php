@@ -18,6 +18,11 @@ class Review extends Model
     ];
     public function akun()
     {
-        return $this->belongsTo(User::class, 'id_akun');
+        return $this->belongsTo(Akun::class, 'id_akun', 'id');
+    }
+
+    public function properti()
+    {
+        return $this->belongsTo(Properti::class, 'id_properti', 'id_properti');
     }
 }

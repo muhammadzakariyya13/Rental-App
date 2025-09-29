@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Akun;
+use App\Models\Role;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,14 +32,23 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'username' => ['required', 'string', 'max:255', 'unique:akun,username'],
+            'phone_number' => ['required', 'string', 'max:30'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:akun,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
+        // Cari role customer
+        $customerRole = Role::where('nama', 'customer')->first();
+
+        // Map field Breeze (name) ke kolom Akun (nama)
+        $user = Akun::create([
+            'nama' => $request->name,
+            'username' => $request->username,
+            'phone_number' => $request->phone_number,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role_id' => $customerRole?->id,
         ]);
 
         event(new Registered($user));
