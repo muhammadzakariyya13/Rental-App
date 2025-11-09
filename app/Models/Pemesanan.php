@@ -13,19 +13,24 @@ class Pemesanan extends Model
     protected $primaryKey = 'id_pemesanan';
 
     protected $fillable = [
-        'id_akun',
+        'id_penyewa',
         'id_properti',
-        'tanggal_pemesanan',
-        'lama_sewa',
-        'status_pemesanan',
+        'tanggal_mulai',
+        'tanggal_selesai',
+        'durasi',
+        'total_harga',
+        'status',
         'metode_pembayaran',
-        'status_pembayaran',
+        'catatan',
+        'payment_transaction_id',
+        'payment_url',
+        'payment_status',
     ];
 
-    // Relasi ke Akun
-    public function akun()
+    // Relasi ke Akun (Penyewa)
+    public function penyewa()
     {
-        return $this->belongsTo(Akun::class, 'id_akun', 'id_akun');
+        return $this->belongsTo(Akun::class, 'id_penyewa', 'id');
     }
 
     // Relasi ke Properti

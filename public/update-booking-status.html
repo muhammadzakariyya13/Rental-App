@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="">
+    <title>Update Booking Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f1f1f1;
+            border-left: 5px solid #2196F3;
+        }
+        .error {
+            color: #f44336;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Update Booking Status</h1>
+        <p>Gunakan form ini untuk mengupdate status booking menjadi "confirmed" melalui simulasi webhook pembayaran.</p>
+        
+        <form id="webhookForm">
+            <div class="form-group">
+                <label for="booking_id">ID Pemesanan:</label>
+                <input type="text" id="booking_id" name="booking_id" placeholder="Masukkan ID Pemesanan" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="status">Status Pembayaran:</label>
+                <select id="status" name="status">
+                    <option value="completed">Completed (Konfirmasi)</option>
+                    <option value="pending">Pending (Menunggu)</option>
+                    <option value="failed">Failed (Gagal)</option>
+                    <option value="cancelled">Cancelled (Dibatalkan)</option>
+                </select>
+            </div>
+            
+            <button type="submit">Update Status</button>
+        </form>
+        
+        <div class="result" id="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('webhookForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const bookingId = document.getElementById('booking_id').value;
+            const status = document.getElementById('status').value;
+            
+            // First, get the payment_transaction_id from the booking
+            fetch(`/api/bookings/${bookingId}/transaction-id`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.transaction_id) {
+                        throw new Error('Booking tidak memiliki ID transaksi pembayaran');
+                    }
+                      // Now send the webhook with the transaction ID
+                    return fetch('/test-payment/webhook', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            transaction_id: data.transaction_id,
+                            status: status
+                        })
+                    });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const resultDiv = document.getElementById('result');
+                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML = `
+                        <h3>Hasil:</h3>
+                        <p><strong>Status:</strong> ${data.success ? 'Berhasil' : 'Gagal'}</p>
+                        <p><strong>Pesan:</strong> ${data.message}</p>
+                        <p><strong>Status Booking:</strong> ${data.booking_status || 'Tidak ada informasi'}</p>
+                        <p><strong>Status Pembayaran:</strong> ${data.payment_status || 'Tidak ada informasi'}</p>
+                        <p><strong>Status Properti:</strong> ${data.property_status || 'Tidak ada informasi'}</p>
+                    `;
+                })
+                .catch(error => {
+                    const resultDiv = document.getElementById('result');
+                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+</html>

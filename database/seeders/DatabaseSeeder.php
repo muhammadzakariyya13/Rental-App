@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
 
         // Seeder yang lain dapat dijalankan juga
         $this->call([
+            PropertiSeeder::class,
             // AccountSeeder::class,
             // PemesananSeeder::class,
             // AccountPemesananSeeder::class,

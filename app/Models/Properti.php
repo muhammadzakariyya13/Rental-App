@@ -32,9 +32,12 @@ class Properti extends Model
      */
     protected $fillable = [
         'nama',
+        'alamat',
+        'tipe',
         'harga',
         'deskripsi',
         'status',
+        'id_akun'
     ];
 
     /**

@@ -15,7 +15,7 @@
                         <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
                             <h4 class="font-medium mb-2">Property Management</h4>
                             <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Manage your rental properties</p>
-                            <a href="{{ route('pemilik.properti') }}" class="text-blue-600 dark:text-blue-400 hover:underline">Kelola Properti</a>
+                            <a href="{{ route('pemilik.properti.index') }}" class="text-blue-600 dark:text-blue-400 hover:underline">Kelola Properti</a>
                         </div>
                           <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
                             <h4 class="font-medium mb-2">Booking Management</h4>
@@ -36,7 +36,7 @@
                             <div class="bg-blue-100 dark:bg-blue-800 p-4 rounded-lg shadow">
                                 <h4 class="font-medium mb-2">My Properties</h4>
                                 <p class="text-3xl font-bold">3</p>
-                                <a href="{{ route('pemilik.properti') }}" class="text-blue-600 dark:text-blue-400 text-sm hover:underline">Manage Properties</a>
+                                <a href="{{ route('pemilik.properti.index') }}" class="text-blue-600 dark:text-blue-400 text-sm hover:underline">Manage Properties</a>
                             </div>
                             
                             <div class="bg-yellow-100 dark:bg-yellow-800 p-4 rounded-lg shadow">
@@ -84,7 +84,7 @@
                                     <div class="card-body">
                                         <h5 class="card-title">Properti Saya</h5>
                                         <p class="card-text display-4">3</p>
-                                        <a href="{{ route('pemilik.properti') }}" class="btn btn-light">Kelola Properti</a>
+                                        <a href="{{ route('pemilik.properti.index') }}" class="btn btn-light">Kelola Properti</a>
                                     </div>
                                 </div>
                             </div>

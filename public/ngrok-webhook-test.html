@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ngrok Webhook Tester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">Payment Gateway - Ngrok Webhook Tester</h1>
+        
+        <!-- Ngrok URL Setup -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Setup Ngrok URL</h2>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Ngrok URL (dari terminal ngrok):</label>
+                <input type="text" id="ngrokUrl" placeholder="https://abc123.ngrok-free.app" 
+                       class="w-full p-2 border border-gray-300 rounded-md">
+                <p class="text-sm text-gray-600 mt-1">Salin URL dari terminal ngrok setelah menjalankan: ngrok http 8000</p>
+            </div>
+            
+            <div class="bg-blue-50 p-4 rounded-md mb-4">
+                <h3 class="font-semibold text-blue-900">Webhook URLs untuk Payment Gateway Dashboard:</h3>
+                <div class="mt-2 space-y-1">
+                    <div class="font-mono text-sm bg-white p-2 rounded border" id="webhookUrl1">
+                        [Ngrok URL]/payment/callback
+                    </div>
+                    <div class="font-mono text-sm bg-white p-2 rounded border" id="webhookUrl2">
+                        [Ngrok URL]/api/webhook/payment
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Webhook -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Webhook</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Transaction ID:</label>
+                    <input type="text" id="transactionId" value="TXN-12345" 
+                           class="w-full p-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status:</label>
+                    <select id="paymentStatus" class="w-full p-2 border border-gray-300 rounded-md">
+                        <option value="completed">Completed</option>
+                        <option value="pending">Pending</option>
+                        <option value="failed">Failed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Amount:</label>
+                    <input type="number" id="amount" value="500000" 
+                           class="w-full p-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Currency:</label>
+                    <input type="text" id="currency" value="IDR" 
+                           class="w-full p-2 border border-gray-300 rounded-md">
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="testWebhookToNgrok()" 
+                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                    Send Webhook to Ngrok URL
+                </button>
+                
+                <button onclick="testWebhookToLocal()" 
+                        class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">
+                    Send Webhook to Local (localhost:8000)
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Results</h2>
+            <div id="results" class="bg-gray-50 p-4 rounded-md border">
+                <p class="text-gray-600">Test results akan muncul di sini...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update webhook URLs ketika ngrok URL berubah
+        document.getElementById('ngrokUrl').addEventListener('input', function() {
+            const ngrokUrl = this.value.replace(/\/$/, ''); // hapus trailing slash
+            document.getElementById('webhookUrl1').textContent = ngrokUrl + '/payment/callback';
+            document.getElementById('webhookUrl2').textContent = ngrokUrl + '/api/webhook/payment';
+        });
+
+        async function testWebhookToNgrok() {
+            const ngrokUrl = document.getElementById('ngrokUrl').value.replace(/\/$/, '');
+            if (!ngrokUrl) {
+                alert('Masukkan Ngrok URL terlebih dahulu!');
+                return;
+            }
+            await sendWebhook(ngrokUrl + '/payment/callback');
+        }
+
+        async function testWebhookToLocal() {
+            await sendWebhook('http://localhost:8000/payment/callback');
+        }
+
+        async function sendWebhook(url) {
+            const payload = {
+                transaction_id: document.getElementById('transactionId').value,
+                status: document.getElementById('paymentStatus').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                currency: document.getElementById('currency').value,
+                timestamp: new Date().toISOString(),
+                merchant_code: 'MCH-L9VRWU'
+            };
+
+            try {
+                document.getElementById('results').innerHTML = 
+                    `<p class="text-blue-600">Sending webhook to: ${url}</p>` +
+                    `<pre class="text-sm mt-2 bg-white p-2 rounded border">${JSON.stringify(payload, null, 2)}</pre>`;
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': '0bkGS0zEJ5k8Go8FF1zxLdVQY2aWLV1f'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.text();
+                
+                document.getElementById('results').innerHTML = 
+                    `<p class="text-green-600 font-semibold">✅ Success! Status: ${response.status}</p>` +
+                    `<p class="text-sm text-gray-600 mt-1">URL: ${url}</p>` +
+                    `<div class="mt-2"><strong>Request:</strong></div>` +
+                    `<pre class="text-sm bg-gray-100 p-2 rounded border">${JSON.stringify(payload, null, 2)}</pre>` +
+                    `<div class="mt-2"><strong>Response:</strong></div>` +
+                    `<pre class="text-sm bg-white p-2 rounded border">${result}</pre>`;
+
+            } catch (error) {
+                document.getElementById('results').innerHTML = 
+                    `<p class="text-red-600 font-semibold">❌ Error: ${error.message}</p>` +
+                    `<p class="text-sm text-gray-600 mt-1">URL: ${url}</p>` +
+                    `<div class="mt-2"><strong>Sent:</strong></div>` +
+                    `<pre class="text-sm bg-gray-100 p-2 rounded border">${JSON.stringify(payload, null, 2)}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html>

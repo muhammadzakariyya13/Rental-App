@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Payment Gateway Debug Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">🔧 Payment Gateway Debug Tool</h1>
+        
+        <!-- Current Configuration -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">📋 Current Configuration</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Ngrok URL:</label>
+                    <div class="p-2 bg-gray-50 rounded border font-mono text-sm">
+                        https://cristopher-hastiest-unviolably.ngrok-free.dev
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Correct Webhook URL:</label>
+                    <div class="p-2 bg-green-50 rounded border font-mono text-sm text-green-800 font-semibold">
+                        https://cristopher-hastiest-unviolably.ngrok-free.dev/payment/callback
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Wrong URL (don't use):</label>
+                    <div class="p-2 bg-red-50 rounded border font-mono text-sm text-red-800">
+                        https://cristopher-hastiest-unviolably.ngrok-free.dev/webhook/payment
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Merchant Code:</label>
+                    <div class="p-2 bg-gray-50 rounded border font-mono text-sm">
+                        MCH-L9VRWU
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Webhook URL Fix -->
+        <div class="bg-red-50 border border-red-200 p-6 rounded-lg mb-6">
+            <h2 class="text-xl font-semibold text-red-800 mb-4">⚠️ Webhook URL Perlu Diperbaiki!</h2>
+            <div class="space-y-3">
+                <div>
+                    <p class="text-red-700 font-semibold">Yang sekarang di PG Dummy (SALAH):</p>
+                    <div class="bg-white p-2 rounded border font-mono text-sm text-red-800">
+                        https://cristopher-hastiest-unviolably.ngrok-free.dev/webhook/payment
+                    </div>
+                </div>
+                <div>
+                    <p class="text-green-700 font-semibold">Yang harus digunakan (BENAR):</p>
+                    <div class="flex items-center">
+                        <div class="flex-1 bg-white p-2 rounded-l border font-mono text-sm text-green-800 font-semibold">
+                            https://cristopher-hastiest-unviolably.ngrok-free.dev/payment/callback
+                        </div>
+                        <button onclick="copyCorrectURL()" 
+                                class="bg-green-600 text-white px-4 py-2 rounded-r hover:bg-green-700">
+                            📋 Copy
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-yellow-50 p-3 rounded border border-yellow-200">
+                    <p class="text-yellow-800 text-sm">
+                        <strong>Action Required:</strong> Buka PG Dummy dashboard dan ganti webhook URL dengan URL yang benar di atas.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug Tests -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">🧪 Debug Tests</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <button onclick="testLaravelConfig()" 
+                        class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+                    Test Laravel Config
+                </button>
+                
+                <button onclick="testNgrokConnection()" 
+                        class="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700">
+                    Test Ngrok Connection
+                </button>
+                
+                <button onclick="testPaymentGateway()" 
+                        class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
+                    Test Payment Gateway
+                </button>
+                
+                <button onclick="testWebhookEndpoint()" 
+                        class="bg-orange-600 text-white py-2 px-4 rounded hover:bg-orange-700">
+                    Test Webhook Endpoint
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">📊 Test Results</h2>
+            <div id="results" class="bg-gray-50 p-4 rounded border">
+                <p class="text-gray-600">Click a test button to see results...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateResults(content) {
+            document.getElementById('results').innerHTML = content;
+        }
+
+        function copyCorrectURL() {
+            const url = 'https://cristopher-hastiest-unviolably.ngrok-free.dev/payment/callback';
+            
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✅ Correct webhook URL copied to clipboard!\n\nSekarang paste di PG Dummy dashboard.');
+            }).catch(err => {
+                // Fallback
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('✅ Correct webhook URL copied to clipboard!');
+            });
+        }
+
+        async function testLaravelConfig() {
+            updateResults('<p class="text-blue-600">Testing Laravel configuration...</p>');
+            
+            try {
+                const response = await fetch('/test-payment/connection');
+                const result = await response.text();
+                
+                updateResults(
+                    `<div class="space-y-2">
+                        <p class="font-semibold ${response.ok ? 'text-green-600' : 'text-red-600'}">
+                            ${response.ok ? '✅' : '❌'} Laravel Config: ${response.status}
+                        </p>
+                        <details class="bg-white p-2 rounded border">
+                            <summary class="cursor-pointer font-semibold">Show Response</summary>
+                            <pre class="text-sm mt-2 overflow-auto">${result}</pre>
+                        </details>
+                    </div>`
+                );
+            } catch (error) {
+                updateResults(`<p class="text-red-600 font-semibold">❌ Laravel Config Error: ${error.message}</p>`);
+            }
+        }
+
+        async function testNgrokConnection() {
+            updateResults('<p class="text-blue-600">Testing Ngrok connection...</p>');
+            
+            const ngrokUrl = 'https://cristopher-hastiest-unviolably.ngrok-free.dev';
+            
+            try {
+                const response = await fetch(ngrokUrl);
+                const result = await response.text();
+                
+                updateResults(
+                    `<div class="space-y-2">
+                        <p class="font-semibold ${response.ok ? 'text-green-600' : 'text-red-600'}">
+                            ${response.ok ? '✅' : '❌'} Ngrok Connection: ${response.status}
+                        </p>
+                        <p class="text-sm text-gray-600">URL: ${ngrokUrl}</p>
+                        <details class="bg-white p-2 rounded border">
+                            <summary class="cursor-pointer font-semibold">Show Response</summary>
+                            <pre class="text-sm mt-2 overflow-auto">${result.substring(0, 500)}...</pre>
+                        </details>
+                    </div>`
+                );
+            } catch (error) {
+                updateResults(
+                    `<div class="space-y-2">
+                        <p class="text-red-600 font-semibold">❌ Ngrok Connection Error: ${error.message}</p>
+                        <div class="bg-yellow-50 p-3 rounded border">
+                            <p class="text-yellow-800 text-sm">
+                                <strong>Possible Issues:</strong><br>
+                                • Ngrok not running<br>
+                                • URL changed (restart ngrok generates new URL)<br>
+                                • Network connectivity issues
+                            </p>
+                        </div>
+                    </div>`
+                );
+            }
+        }
+
+        async function testPaymentGateway() {
+            updateResults('<p class="text-blue-600">Testing Payment Gateway direct connection...</p>');
+            
+            const testData = {
+                external_id: 'TEST-' + Date.now(),
+                amount: 100000,
+                merchant_code: 'MCH-L9VRWU',
+                customer_name: 'Test User',
+                customer_email: 'test@example.com',
+                payment_method: 'bank_transfer',
+                description: 'Test payment transaction',
+                callback_url: 'https://cristopher-hastiest-unviolably.ngrok-free.dev/payment/callback'
+            };
+            
+            try {
+                const response = await fetch('https://payment-dummy.doovera.com/api/v1/virtual-account/create', {
+                    method: 'POST',
+                    headers: {
+                        'X-API-Key': '0bkGS0zEJ5k8Go8FF1zxLdVQY2aWLV1f',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.text();
+                
+                updateResults(
+                    `<div class="space-y-2">
+                        <p class="font-semibold ${response.ok ? 'text-green-600' : 'text-red-600'}">
+                            ${response.ok ? '✅' : '❌'} Payment Gateway: ${response.status}
+                        </p>
+                        ${response.ok ? 
+                            '<p class="text-green-600 text-sm">Payment gateway connection works!</p>' :
+                            '<p class="text-red-600 text-sm">Payment gateway error - check credentials</p>'
+                        }
+                        <details class="bg-white p-2 rounded border">
+                            <summary class="cursor-pointer font-semibold">Show Request/Response</summary>
+                            <div class="text-sm mt-2 space-y-2">
+                                <div><strong>Request:</strong></div>
+                                <pre class="bg-gray-100 p-2 rounded overflow-auto">${JSON.stringify(testData, null, 2)}</pre>
+                                <div><strong>Response:</strong></div>
+                                <pre class="bg-gray-100 p-2 rounded overflow-auto">${result}</pre>
+                            </div>
+                        </details>
+                    </div>`
+                );
+            } catch (error) {
+                updateResults(`<p class="text-red-600 font-semibold">❌ Payment Gateway Error: ${error.message}</p>`);
+            }
+        }
+
+        async function testWebhookEndpoint() {
+            updateResults('<p class="text-blue-600">Testing webhook endpoint...</p>');
+            
+            const webhookUrl = 'https://cristopher-hastiest-unviolably.ngrok-free.dev/payment/callback';
+            const testData = {
+                transaction_id: 'TEST-' + Date.now(),
+                status: 'completed',
+                amount: 100000,
+                currency: 'IDR',
+                merchant_code: 'MCH-L9VRWU'
+            };
+            
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': '0bkGS0zEJ5k8Go8FF1zxLdVQY2aWLV1f'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.text();
+                
+                updateResults(
+                    `<div class="space-y-2">
+                        <p class="font-semibold ${response.ok ? 'text-green-600' : 'text-red-600'}">
+                            ${response.ok ? '✅' : '❌'} Webhook Endpoint: ${response.status}
+                        </p>
+                        <p class="text-sm text-gray-600">URL: ${webhookUrl}</p>
+                        ${response.ok ? 
+                            '<p class="text-green-600 text-sm">Webhook endpoint accessible!</p>' :
+                            '<p class="text-red-600 text-sm">Webhook endpoint error</p>'
+                        }
+                        <details class="bg-white p-2 rounded border">
+                            <summary class="cursor-pointer font-semibold">Show Response</summary>
+                            <pre class="text-sm mt-2 overflow-auto">${result}</pre>
+                        </details>
+                    </div>`
+                );
+            } catch (error) {
+                updateResults(`<p class="text-red-600 font-semibold">❌ Webhook Endpoint Error: ${error.message}</p>`);
+            }
+        }
+    </script>
+</body>
+</html>

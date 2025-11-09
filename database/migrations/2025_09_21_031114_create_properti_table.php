@@ -14,11 +14,15 @@ return new class extends Migration
         Schema::create('properti', function (Blueprint $table) {
             $table->id('id_properti'); // Primary key sesuai ERD
             $table->string('nama');
+            $table->text('alamat');
+            $table->string('tipe');
             $table->decimal('harga', 15, 2); // Tipe decimal cocok untuk harga/uang
             $table->text('deskripsi');
-            $table->enum('status', ['tersedia', 'disewa']);
+            $table->enum('status', ['tersedia', 'disewa', 'tidak tersedia']);
+            $table->unsignedBigInteger('id_akun')->nullable(); // Foreign key ke tabel akun
+            $table->foreign('id_akun')->references('id')->on('akun')->onDelete('set null');
             $table->timestamps(); // Kolom created_at dan updated_at
-        }); // <-- SEHARUSNYA SEPERTI INI
+        });
     }
 
     /**

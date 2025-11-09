@@ -1,54 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Saya - Rental App</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    @php
-    $dashboardRoute = '';
-    if (auth()->user()->hasRole('admin')) {
-        $dashboardRoute = route('admin.dashboard');
-    } elseif (auth()->user()->hasRole('pemilik')) {
-        $dashboardRoute = route('pemilik.dashboard');
-    } elseif (auth()->user()->hasRole('penyewa')) {
-        $dashboardRoute = route('penyewa.dashboard');
-    }
-    @endphp
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Profil Saya') }}
+        </h2>
+    </x-slot>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="#">Rental App</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ $dashboardRoute }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('profile.show') }}">Profil</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-link nav-link">Logout</button>
-                        </form>
-                    </li>
-                </ul>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-medium">Informasi Profil</h3>
+                        <a href="{{ route('profile.edit') }}" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">
+                            Edit Profil
+                        </a>
+                    </div>
+
+                    @if (session('success'))
+                        <div class="mb-4 text-sm text-green-600">
+                            {{ session('success') }}
+                        </div>
+                    @endif                    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                        <div class="border-t border-gray-200">
+                            <dl>
+                                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Username</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">{{ $user->username }}</dd>
+                                </div>
+                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Email</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">{{ $user->email }}</dd>
+                                </div>
+                                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Nomor Telepon</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">{{ $user->phone_number }}</dd>
+                                </div>
+                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-gray-500">Role</dt>
+                                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2">
+                                        @foreach ($user->roles as $role)
+                                            <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                                                {{ ucfirst($role->name) }}
+                                            </span>
+                                        @endforeach
+                                    </dd>                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-8 mx-auto">
-                <div class="card">
+    </div>
+</x-app-layout>>
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h3>Profil Saya</h3>
                         <a href="{{ route('profile.edit') }}" class="btn btn-warning">Edit Profil</a>

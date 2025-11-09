@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Gateway Bypass - Testing Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .card { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .btn { padding: 10px 20px; margin: 10px 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-primary { background: #007bff; color: white; }
+        input[type="number"] { padding: 8px; margin: 5px; border: 1px solid #ccc; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Payment Gateway Bypass - Testing Tool</h1>
+    
+    <div class="card error">
+        <h3>⚠️ Current Issue</h3>
+        <p><strong>Error:</strong> "Payment gateway error, please try again later"</p>
+        <p><strong>Cause:</strong> Invalid API Key (401 Unauthorized) - Current API Key: 0bkGS0zEJ5k8Go8FF1zxLdVQY2aWLV1f</p>
+    </div>
+
+    <div class="card success">
+        <h3>✅ Solution 1: Use Simulated Payment</h3>
+        <p>On the payment page, select "<strong>Simulate successful payment</strong>" option instead of regular payment.</p>
+        <ol>
+            <li>Go to your booking payment page</li>
+            <li>Select radio button: "Simulate successful payment"</li>
+            <li>Check terms and conditions</li>
+            <li>Click "Confirm Payment"</li>
+        </ol>
+        <p><strong>Result:</strong> Booking status will change to "completed" and "confirmed" immediately.</p>
+    </div>
+
+    <div class="card warning">
+        <h3>🔄 Solution 2: Manual Payment Status Update</h3>
+        <p>Manually update payment status for testing purposes:</p>
+        
+        <form method="POST" action="/debug/update-payment-status" style="margin-top: 15px;">
+            <input type="hidden" name="_token" value="bypass-token">
+            <label>Booking ID:</label>
+            <input type="number" name="booking_id" placeholder="Enter booking ID (e.g., 23)" required>
+            <button type="submit" class="btn btn-warning">✅ Mark as Paid</button>
+        </form>
+        
+        <p><small>This will change payment_status to 'completed' and booking status to 'confirmed'</small></p>
+    </div>
+
+    <div class="card">
+        <h3>🔍 Solution 3: Check Current Payment Status</h3>
+        <form method="GET" action="/debug/check-payment-status" style="margin-top: 15px;">
+            <label>Booking ID:</label>
+            <input type="number" name="booking_id" placeholder="Enter booking ID" required>
+            <button type="submit" class="btn btn-primary">📊 Check Status</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>🛠️ Solution 4: Get Valid API Key</h3>
+        <p>For production use, you need to get valid credentials from PG Dummy:</p>
+        <ol>
+            <li>Visit: <a href="https://payment-dummy.doovera.com" target="_blank">https://payment-dummy.doovera.com</a></li>
+            <li>Login or register for new account</li>
+            <li>Get new API Key and Merchant Code</li>
+            <li>Update .env file with new credentials</li>
+            <li>Set webhook URL to: <code>https://cristopher-hastiest-unviolably.ngrok-free.dev/payment/callback</code></li>
+        </ol>
+    </div>
+
+    <div class="card">
+        <h3>📝 Recent Payment Attempts</h3>
+        <p>Latest booking attempts (all in ERROR mode due to invalid API key):</p>
+        <ul>
+            <li>Booking ID 23: ERROR-690846ed6af54 (pending)</li>
+            <li>Booking ID 22: ERROR-6908453a0b1cb (pending)</li>
+            <li>Booking ID 21: ERROR-690844620a86c (pending)</li>
+        </ul>
+    </div>
+
+    <hr>
+    <p><small>Generated: November 3, 2025 | Laravel Rental App Payment Debug Tool</small></p>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Gateway Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .result {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            display: none;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .error {
+            background: #ffecec;
+            color: #ff5252;
+        }
+        .success {
+            background: #e7f6e7;
+            color: #28a745;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Payment Gateway Test</h1>
+        <div class="card">
+            <h2>Test Connection</h2>
+            <p>Test the connection to the payment gateway:</p>
+            <button id="testConnection">Test Connection</button>
+            <div id="connectionResult" class="result"></div>
+        </div>
+
+        <div class="card">
+            <h2>Configuration</h2>
+            <div id="configResult"></div>
+        </div>
+
+        <div class="card">
+            <h2>Simulate Webhook</h2>
+            <form id="webhookForm">
+                <div>
+                    <label for="transactionId">Transaction ID:</label>
+                    <input type="text" id="transactionId" placeholder="Transaction ID" required>
+                </div>
+                <div>
+                    <label for="status">Status:</label>
+                    <select id="status" required>
+                        <option value="completed">Completed</option>
+                        <option value="failed">Failed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="amount">Amount:</label>
+                    <input type="number" id="amount" placeholder="Amount" value="100000">
+                </div>
+                <button type="submit">Send Webhook</button>
+            </form>
+            <div id="webhookResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Replace with your actual ngrok URL
+        const baseUrl = 'https://cristopher-hastiest-unviolably.ngrok-free.dev';
+        
+        // Test connection
+        document.getElementById('testConnection').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('connectionResult');
+            resultDiv.textContent = 'Testing connection...';
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/public/payment-test/connection`);
+                const data = await response.json();
+                
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                if (data.connection_test === 'Successful') {
+                    resultDiv.classList.add('success');
+                } else {
+                    resultDiv.classList.add('error');
+                }
+                
+                // Update configuration display
+                updateConfig(data);
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.classList.add('error');
+            }
+        });
+        
+        // Show configuration
+        function updateConfig(data) {
+            const configDiv = document.getElementById('configResult');
+            const html = `
+                <p><strong>Gateway URL:</strong> ${data.gateway_url || 'Not set'}</p>
+                <p><strong>API Key:</strong> ${data.api_key || 'Not set'}</p>
+                <p><strong>Webhook Secret:</strong> ${data.webhook_secret || 'Not set'}</p>
+                <p><strong>Merchant Code:</strong> ${data.merchant_code || 'Not set'}</p>
+                <p><strong>Connection Status:</strong> ${data.connection_test || 'Unknown'}</p>
+                <p><strong>Webhook URL:</strong> ${baseUrl}/api/webhook/payment</p>
+            `;
+            configDiv.innerHTML = html;
+        }
+        
+        // Handle webhook form submission
+        document.getElementById('webhookForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('webhookResult');
+            resultDiv.textContent = 'Sending webhook...';
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            
+            const transactionId = document.getElementById('transactionId').value;
+            const status = document.getElementById('status').value;
+            const amount = document.getElementById('amount').value;
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/public/payment-test/webhook`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        transaction_id: transactionId,
+                        status: status,
+                        amount: amount
+                    })
+                });
+                
+                const data = await response.json();
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (data.success) {
+                    resultDiv.classList.add('success');
+                } else {
+                    resultDiv.classList.add('error');
+                }
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.classList.add('error');
+            }
+        });
+        
+        // Trigger connection test on page load
+        window.addEventListener('load', () => {
+            document.getElementById('testConnection').click();
+        });
+    </script>
+</body>
+</html>

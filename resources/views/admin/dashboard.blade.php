@@ -15,18 +15,17 @@
                         <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
                             <h4 class="font-medium mb-2">User Management</h4>
                             <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Manage users, roles and permissions</p>
-                            <a href="{{ route('admin.users') }}" class="text-blue-600 dark:text-blue-400 hover:underline">Kelola Pengguna</a>
+                            <a href="{{ route('admin.users.index') }}" class="text-blue-600 dark:text-blue-400 hover:underline">Kelola Pengguna</a>
                         </div>
                           <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
                             <h4 class="font-medium mb-2">Role Management</h4>
                             <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Manage system roles and permissions</p>
-                            <a href="{{ route('admin.roles') }}" class="text-blue-600 dark:text-blue-400 hover:underline">Kelola Role</a>
+                            <a href="{{ route('admin.roles.index') }}" class="text-blue-600 dark:text-blue-400 hover:underline">Kelola Role</a>
                         </div>
-                        
-                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
+                          <div class="bg-white dark:bg-gray-700 p-4 rounded-lg shadow">
                             <h4 class="font-medium mb-2">Permissions</h4>
                             <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Manage permissions for roles</p>
-                            <a href="{{ route('admin.roles') }}" class="text-blue-600 dark:text-blue-400 hover:underline">Kelola Permissions</a>
+                            <a href="{{ route('admin.roles.index') }}" class="text-blue-600 dark:text-blue-400 hover:underline">Kelola Permissions</a>
                         </div>
                     </div>
                     

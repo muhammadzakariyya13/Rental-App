@@ -21,6 +21,39 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Payment Gateway Integration
+
+This application integrates with a payment gateway for processing rental payments. The integration includes:
+
+- Virtual account creation for payments
+- Webhook handling for payment status updates
+- Comprehensive testing tools
+
+### Setup
+
+1. Configure your payment gateway credentials in the `.env` file:
+
+```
+PAYMENT_API_KEY=your_api_key
+PAYMENT_WEBHOOK_SECRET=your_webhook_secret
+PAYMENT_GATEWAY_URL=https://payment-dummy.doovera.com
+PAYMENT_MERCHANT_CODE=your_merchant_code
+```
+
+2. Ensure webhook endpoints are accessible via public URL (using ngrok or similar for local development)
+
+### Documentation
+
+- [Payment Gateway Documentation](./PAYMENT-GATEWAY-DOCS.md) - API documentation and integration details
+- [Payment Testing Guide](./PAYMENT-TESTING.md) - Step-by-step testing instructions
+
+### Testing Scripts
+
+- `direct-gateway-test.php` - Test the payment gateway API directly
+- `full-payment-test.php` - Test the complete payment flow
+- `enhanced-ngrok-test.php` - Test webhooks through ngrok
+- `webhook-test.php` - Simulate payment gateway webhooks
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.

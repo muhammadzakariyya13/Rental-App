@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #3498db;
+            margin-top: 30px;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow: auto;
+            border: 1px solid #ddd;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .response-area {
+            margin-top: 20px;
+        }
+        .response-status {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .success {
+            color: #27ae60;
+        }
+        .error {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Payment Webhook Test Tool</h1>
+        
+        <p>This page allows you to test the payment webhook functionality by sending simulated webhook requests.</p>
+
+        <h2>Send Webhook Request</h2>
+        
+        <form id="webhook-form">
+            <label for="webhook-url">Webhook URL:</label>
+            <input type="text" id="webhook-url" value="/api/webhook/payment" placeholder="e.g., /api/webhook/payment">
+            
+            <label for="transaction-id">Transaction ID:</label>
+            <input type="text" id="transaction-id" value="8800000000123456" placeholder="e.g., 8800000000123456">
+            
+            <label for="status">Payment Status:</label>
+            <select id="status" style="width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="completed">completed</option>
+                <option value="pending">pending</option>
+                <option value="failed">failed</option>
+                <option value="cancelled">cancelled</option>
+            </select>
+            
+            <label for="payload">Custom Payload (JSON):</label>
+            <textarea id="payload" rows="10" placeholder="Enter custom JSON payload or leave empty to use default template"></textarea>
+            
+            <button type="submit">Send Webhook</button>
+            <button type="button" id="generate-payload">Generate Default Payload</button>
+        </form>
+        
+        <div class="response-area">
+            <h3>Response:</h3>
+            <div class="response-status" id="response-status"></div>
+            <pre id="response-content"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('webhook-form');
+            const generateBtn = document.getElementById('generate-payload');
+            const webhookUrl = document.getElementById('webhook-url');
+            const transactionId = document.getElementById('transaction-id');
+            const status = document.getElementById('status');
+            const payload = document.getElementById('payload');
+            const responseStatus = document.getElementById('response-status');
+            const responseContent = document.getElementById('response-content');
+            
+            // Generate random transaction ID on load
+            transactionId.value = '88' + Math.floor(1000000000000 + Math.random() * 9000000000000);
+            
+            generateBtn.addEventListener('click', function() {
+                const defaultPayload = {
+                    data: {
+                        id: transactionId.value,
+                        status: status.value,
+                        amount: Math.floor(10000 + Math.random() * 990000), // Random amount between 10K and 1M
+                        payment_method: 'bank_transfer',
+                        merchant_code: 'MCH-GXLUDZ',
+                        external_id: 'BOOK-' + Math.floor(1000 + Math.random() * 9000),
+                        created_at: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+                        updated_at: new Date().toISOString(),
+                        paid_at: status.value === 'completed' ? new Date().toISOString() : null
+                    }
+                };
+                
+                payload.value = JSON.stringify(defaultPayload, null, 2);
+            });
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                let url = webhookUrl.value;
+                if (!url.startsWith('/') && !url.startsWith('http')) {
+                    url = '/' + url;
+                }
+                
+                let requestPayload;
+                if (payload.value.trim() === '') {
+                    // Generate default payload if empty
+                    requestPayload = {
+                        data: {
+                            id: transactionId.value,
+                            status: status.value,
+                            amount: Math.floor(10000 + Math.random() * 990000),
+                            payment_method: 'bank_transfer',
+                            merchant_code: 'MCH-GXLUDZ',
+                            external_id: 'BOOK-' + Math.floor(1000 + Math.random() * 9000),
+                            created_at: new Date(Date.now() - 3600000).toISOString(),
+                            updated_at: new Date().toISOString(),
+                            paid_at: status.value === 'completed' ? new Date().toISOString() : null
+                        }
+                    };
+                } else {
+                    try {
+                        requestPayload = JSON.parse(payload.value);
+                    } catch (error) {
+                        responseStatus.className = 'response-status error';
+                        responseStatus.textContent = 'Error: Invalid JSON payload';
+                        responseContent.textContent = error.toString();
+                        return;
+                    }
+                }
+                
+                responseStatus.textContent = 'Sending webhook...';
+                responseStatus.className = 'response-status';
+                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Webhook-Signature': 'test-signature' // This is a placeholder - real signatures would be calculated
+                    },
+                    body: JSON.stringify(requestPayload)
+                })
+                .then(response => {
+                    const statusClass = response.ok ? 'success' : 'error';
+                    responseStatus.className = 'response-status ' + statusClass;
+                    responseStatus.textContent = `Status: ${response.status} ${response.statusText}`;
+                    
+                    return response.text();
+                })
+                .then(text => {
+                    try {
+                        // Try to parse as JSON for pretty display
+                        const json = JSON.parse(text);
+                        responseContent.textContent = JSON.stringify(json, null, 2);
+                    } catch (e) {
+                        // If not JSON, display as text
+                        responseContent.textContent = text;
+                    }
+                })
+                .catch(error => {
+                    responseStatus.className = 'response-status error';
+                    responseStatus.textContent = 'Error sending webhook';
+                    responseContent.textContent = error.toString();
+                });
+            });
+            
+            // Trigger the generate button on load
+            generateBtn.click();
+        });
+    </script>
+</body>
+</html>

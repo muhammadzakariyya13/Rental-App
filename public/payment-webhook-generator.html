@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Payment Gateway - Ngrok Webhook Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-indigo-900 mb-2">🚀 Payment Gateway Setup</h1>
+            <p class="text-lg text-indigo-700">Ngrok Webhook Generator untuk PG Dummy</p>
+        </div>
+        
+        <!-- Current Credentials -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">📋 Current API Credentials</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Merchant Code:</label>
+                    <div class="font-mono text-sm text-indigo-600 font-semibold">MCH-L9VRWU</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">API Key:</label>
+                    <div class="font-mono text-xs text-indigo-600 font-semibold">0bkGS0zEJ5k8Go8FF1zxLdVQY2aWLV1f</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Webhook Secret:</label>
+                    <div class="font-mono text-xs text-indigo-600 font-semibold">pLPTCPHCQbLcwScSev8yPIttwXVtw0J</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step-by-Step Instructions -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">📝 Langkah-langkah Setup</h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-start p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                    <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4">1</div>
+                    <div>
+                        <h3 class="font-semibold text-blue-900">Download Ngrok</h3>
+                        <p class="text-blue-800 text-sm">Download dari <a href="https://ngrok.com/download" target="_blank" class="underline font-semibold">https://ngrok.com/download</a></p>
+                        <p class="text-blue-800 text-sm">Extract ke: <code class="bg-white px-2 py-1 rounded">C:\ngrok\</code></p>
+                    </div>
+                </div>
+
+                <div class="flex items-start p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+                    <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4">2</div>
+                    <div>
+                        <h3 class="font-semibold text-green-900">Setup Authtoken</h3>
+                        <p class="text-green-800 text-sm">Daftar gratis di ngrok.com → Login → Copy authtoken</p>
+                        <div class="bg-gray-800 text-green-400 p-2 rounded mt-2 font-mono text-sm">
+                            cd C:\ngrok<br>
+                            ngrok config add-authtoken YOUR_AUTHTOKEN
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-start p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
+                    <div class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4">3</div>
+                    <div>
+                        <h3 class="font-semibold text-yellow-900">Jalankan Laravel Server</h3>
+                        <div class="bg-gray-800 text-green-400 p-2 rounded mt-2 font-mono text-sm">
+                            cd "D:\PROJEK LARAVEL\Rental-App"<br>
+                            /c/laragon/bin/php/php-8.2.28-Win32-vs16-x64/php.exe artisan serve
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-start p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500">
+                    <div class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-4">4</div>
+                    <div>
+                        <h3 class="font-semibold text-purple-900">Jalankan Ngrok</h3>
+                        <div class="bg-gray-800 text-green-400 p-2 rounded mt-2 font-mono text-sm">
+                            cd C:\ngrok<br>
+                            ngrok http 8000
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Webhook URL Generator -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">🔗 Generate Webhook URL untuk PG Dummy</h2>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Masukkan Ngrok URL (dari terminal ngrok):
+                </label>
+                <input type="text" id="ngrokUrl" 
+                       placeholder="https://abc123def.ngrok-free.app" 
+                       class="w-full p-3 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                       oninput="generateWebhookUrl()">
+                <p class="text-sm text-gray-600 mt-1">
+                    📌 Copy URL HTTPS dari output ngrok (yang berakhiran .ngrok-free.app)
+                </p>
+            </div>
+
+            <div id="webhookResults" class="hidden">
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 p-6 rounded-lg">
+                    <h3 class="font-bold text-green-800 text-xl mb-4">✅ Webhook URL untuk PG Dummy Dashboard:</h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-green-700 mb-2">Webhook URL (paste ini ke PG Dummy):</label>
+                        <div class="flex items-center">
+                            <div id="webhookUrl" class="flex-1 bg-white p-3 rounded-l-lg border-2 border-green-300 font-mono text-sm select-all font-semibold text-green-800"></div>
+                            <button onclick="copyToClipboard('webhookUrl')" 
+                                    class="bg-green-600 text-white px-4 py-3 rounded-r-lg hover:bg-green-700 transition-colors border-2 border-green-600">
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-green-100 p-4 rounded-lg">
+                        <p class="text-green-800 font-semibold">📍 Langkah selanjutnya:</p>
+                        <ol class="list-decimal list-inside text-green-700 text-sm mt-2 space-y-1">
+                            <li>Copy URL di atas</li>
+                            <li>Buka PG Dummy dashboard</li>
+                            <li>Paste di field "Webhook URL"</li>
+                            <li>Klik "Save Changes"</li>
+                            <li>Test payment untuk verifikasi</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Test -->
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-4">🧪 Quick Test</h2>
+            
+            <div class="space-y-3">
+                <button onclick="testWebhook()" 
+                        class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
+                    Test Webhook ke Ngrok URL
+                </button>
+                
+                <button onclick="openNgrokDashboard()" 
+                        class="w-full bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors font-semibold">
+                    Buka Ngrok Dashboard (localhost:4040)
+                </button>
+            </div>
+            
+            <div id="testResults" class="mt-4 p-4 bg-gray-50 rounded-lg border hidden">
+                <!-- Test results akan muncul di sini -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateWebhookUrl() {
+            const ngrokUrl = document.getElementById('ngrokUrl').value.trim();
+            const resultsDiv = document.getElementById('webhookResults');
+            const webhookUrlDiv = document.getElementById('webhookUrl');
+            
+            if (ngrokUrl && ngrokUrl.startsWith('https://') && ngrokUrl.includes('ngrok')) {
+                const cleanUrl = ngrokUrl.replace(/\/$/, ''); // Remove trailing slash
+                const webhookUrl = cleanUrl + '/payment/callback';
+                
+                webhookUrlDiv.textContent = webhookUrl;
+                resultsDiv.classList.remove('hidden');
+            } else {
+                resultsDiv.classList.add('hidden');
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Show success feedback
+                const button = element.nextElementSibling;
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.classList.add('bg-green-700');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('bg-green-700');
+                }, 2000);
+            }).catch(err => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('✅ Webhook URL copied to clipboard!');
+            });
+        }
+
+        async function testWebhook() {
+            const ngrokUrl = document.getElementById('ngrokUrl').value.trim();
+            const resultsDiv = document.getElementById('testResults');
+            
+            if (!ngrokUrl) {
+                alert('⚠️ Masukkan Ngrok URL terlebih dahulu!');
+                return;
+            }
+            
+            resultsDiv.classList.remove('hidden');
+            resultsDiv.innerHTML = '<p class="text-blue-600 font-semibold">🧪 Testing webhook...</p>';
+            
+            const webhookUrl = ngrokUrl.replace(/\/$/, '') + '/payment/callback';
+            const testData = {
+                transaction_id: 'TEST-' + Date.now(),
+                status: 'completed',
+                amount: 100000,
+                currency: 'IDR',
+                merchant_code: 'MCH-L9VRWU'
+            };
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': '0bkGS0zEJ5k8Go8FF1zxLdVQY2aWLV1f'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const result = await response.text();
+                
+                resultsDiv.innerHTML = 
+                    `<div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <p class="text-green-800 font-semibold">✅ Webhook Test Berhasil!</p>
+                        <p class="text-sm text-green-700 mt-1">Status: ${response.status}</p>
+                        <p class="text-sm text-green-700">URL: ${webhookUrl}</p>
+                        <details class="mt-2">
+                            <summary class="cursor-pointer text-green-700 font-semibold">Show Response</summary>
+                            <pre class="text-xs bg-white p-2 rounded border mt-2 overflow-auto">${result}</pre>
+                        </details>
+                    </div>`;
+
+            } catch (error) {
+                resultsDiv.innerHTML = 
+                    `<div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <p class="text-red-800 font-semibold">❌ Webhook Test Gagal!</p>
+                        <p class="text-sm text-red-700 mt-1">Error: ${error.message}</p>
+                        <div class="mt-2 text-sm text-red-700">
+                            <p class="font-semibold">Pastikan:</p>
+                            <ul class="list-disc list-inside">
+                                <li>Laravel server berjalan (php artisan serve)</li>
+                                <li>Ngrok berjalan (ngrok http 8000)</li>
+                                <li>URL ngrok benar dan aktif</li>
+                            </ul>
+                        </div>
+                    </div>`;
+            }
+        }
+
+        function openNgrokDashboard() {
+            window.open('http://localhost:4040', '_blank');
+        }
+    </script>
+</body>
+</html>

@@ -17,16 +17,16 @@
                     </x-nav-link>
                     
                     @if(Auth::user()->hasRole('admin'))
-                        <x-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.index')">
                             {{ __('Kelola Pengguna') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.roles')" :active="request()->routeIs('admin.roles')">
+                        <x-nav-link :href="route('admin.roles.index')" :active="request()->routeIs('admin.roles.index')">
                             {{ __('Kelola Role') }}
                         </x-nav-link>
                     @endif
 
                     @if(Auth::user()->hasRole('pemilik'))
-                        <x-nav-link :href="route('pemilik.properti')" :active="request()->routeIs('pemilik.properti')">
+                        <x-nav-link :href="route('pemilik.properti.index')" :active="request()->routeIs('pemilik.properti.*')">
                             {{ __('Kelola Properti') }}
                         </x-nav-link>
                         <x-nav-link :href="route('pemilik.pemesanan')" :active="request()->routeIs('pemilik.pemesanan')">
@@ -38,7 +38,7 @@
                         <x-nav-link :href="route('penyewa.browse')" :active="request()->routeIs('penyewa.browse')">
                             {{ __('Jelajahi Properti') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('penyewa.pemesanan')" :active="request()->routeIs('penyewa.pemesanan')">
+                        <x-nav-link :href="route('penyewa.pemesanan.index')" :active="request()->routeIs('penyewa.pemesanan.index')">
                             {{ __('Pemesanan Saya') }}
                         </x-nav-link>
                         <x-nav-link :href="route('penyewa.review')" :active="request()->routeIs('penyewa.review')">
