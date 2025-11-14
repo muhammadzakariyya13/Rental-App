@@ -1,3 +1,4 @@
+{{-- filepath: d:\PROJEK LARAVEL\Rental-App\resources\views\layouts\navigation.blade.php --}}
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -11,7 +12,7 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <div class="hidden space-x-3 sm:-my-px sm:ms-10 sm:flex items-center">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
@@ -26,11 +27,21 @@
                     @endif
 
                     @if(Auth::user()->hasRole('pemilik'))
-                        <x-nav-link :href="route('pemilik.properti')" :active="request()->routeIs('pemilik.properti')">
+                        {{-- ROUTE NAMES YANG BENAR --}}
+                        <x-nav-link :href="route('pemilik.properti')" :active="request()->routeIs('pemilik.properti*')">
                             {{ __('Kelola Properti') }}
                         </x-nav-link>
+                        
+                        <x-nav-link :href="route('pemilik.bookings.index')" :active="request()->routeIs('pemilik.bookings*')">
+                            {{ __('Kelola Booking') }}
+                        </x-nav-link>
+                        
                         <x-nav-link :href="route('pemilik.pemesanan')" :active="request()->routeIs('pemilik.pemesanan')">
-                            {{ __('Pemesanan') }}
+                            {{ __('Pendapatan') }}
+                        </x-nav-link>
+                        
+                        <x-nav-link :href="route('pemilik.reviews.index')" :active="request()->routeIs('pemilik.reviews*')">
+                            {{ __('Reviews') }}
                         </x-nav-link>
                     @endif
 
@@ -100,12 +111,31 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            
+            @if(Auth::user()->hasRole('pemilik'))
+                <div class="px-4 py-2">
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="{{ route('pemilik.properti.create') }}" class="bg-green-500 text-white px-3 py-2 rounded text-center text-sm">
+                            <i class="fas fa-plus"></i> Tambah
+                        </a>
+                        <a href="{{ route('pemilik.properti') }}" class="bg-blue-500 text-white px-3 py-2 rounded text-center text-sm">
+                            <i class="fas fa-home"></i> Properti
+                        </a>
+                        <a href="{{ route('pemilik.bookings.index') }}" class="bg-orange-500 text-white px-3 py-2 rounded text-center text-sm">
+                            <i class="fas fa-calendar"></i> Booking
+                        </a>
+                        <a href="{{ route('pemilik.pemesanan') }}" class="bg-purple-500 text-white px-3 py-2 rounded text-center text-sm">
+                            <i class="fas fa-dollar-sign"></i> Pendapatan
+                        </a>
+                    </div>
+                </div>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
+                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->username }}</div>
                 <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
             </div>
 

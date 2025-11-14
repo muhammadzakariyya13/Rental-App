@@ -40,6 +40,7 @@ class AccountSeeder extends Seeder
             ],
         ];
 
-        DB::table('account')->insert($accounts);
+        // GANTI 'account' MENJADI 'akun'
+        DB::table('akun')->insert($accounts);
     }
 }

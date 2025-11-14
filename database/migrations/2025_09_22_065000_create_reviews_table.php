@@ -6,28 +6,30 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('reviews', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('id_akun')->constrained('akun', 'id')->onDelete('cascade');
-            // Ubah referensi dari 'id' menjadi 'id_properti'
-            $table->foreignId('id_properti')->constrained('properti', 'id_properti')->onDelete('cascade');
-            $table->text('komentar');
+            $table->id('id_review');
+            $table->unsignedBigInteger('id_properti');
+            $table->unsignedBigInteger('id_penyewa'); 
             $table->integer('rating');
-            $table->date('tanggal');
+            $table->text('review')->nullable();
+            $table->boolean('is_approved')->default(true);
+            $table->timestamp('tanggal_review')->useCurrent();
             $table->timestamps();
+            $table->text('pemilik_reply')->nullable()->after('review');
+            $table->timestamp('reply_date')->nullable()->after('pemilik_reply');
+
+            $table->foreign('id_properti')->references('id_properti')->on('properti')->onDelete('cascade');
+            // GANTI dari 'users' menjadi 'akun'
+            $table->foreign('id_penyewa')->references('id')->on('akun')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('reviews');
+        Schema::table('reviews', function (Blueprint $table) {
+            $table->dropColumn(['pemilik_reply', 'reply_date']);
+        });
     }
 };

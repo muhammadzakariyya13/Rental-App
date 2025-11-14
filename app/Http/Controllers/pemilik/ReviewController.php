@@ -14,8 +14,8 @@ class ReviewController extends Controller
 {
     public function index(Request $request)
     {
-        // Build query untuk reviews milik pemilik
-        $query = Review::with(['penyewa', 'properti', 'sewa'])
+        // Build query untuk reviews milik pemilik - SESUAI DB STRUCTURE
+        $query = Review::with(['penyewa', 'properti'])
             ->whereHas('properti', function($q) {
                 $q->where('pemilik_id', Auth::id());
             });
@@ -28,16 +28,16 @@ class ReviewController extends Controller
         if ($request->filled('status')) {
             switch ($request->status) {
                 case 'replied':
-                    $query->whereNotNull('balasan_pemilik');
+                    $query->whereNotNull('pemilik_reply');
                     break;
                 case 'pending':
-                    $query->whereNull('balasan_pemilik');
+                    $query->whereNull('pemilik_reply');
                     break;
-                case 'verified':
-                    $query->where('is_verified', true);
+                case 'approved':
+                    $query->where('is_approved', true);
                     break;
-                case 'public':
-                    $query->where('is_public', true);
+                case 'not_approved':
+                    $query->where('is_approved', false);
                     break;
             }
         }
@@ -47,10 +47,10 @@ class ReviewController extends Controller
         }
 
         if ($request->filled('search')) {
-            $query->where('komentar', 'like', '%' . $request->search . '%');
+            $query->where('review', 'like', '%' . $request->search . '%');
         }
 
-        $reviews = $query->orderBy('created_at', 'desc')->paginate(10);
+        $reviews = $query->orderBy('tanggal_review', 'desc')->paginate(10);
 
         // Calculate stats
         $baseQuery = Review::whereHas('properti', function($q) {
@@ -59,11 +59,11 @@ class ReviewController extends Controller
 
         $stats = [
             'total_reviews' => (clone $baseQuery)->count(),
-            'average_rating' => (clone $baseQuery)->avg('rating') ?? 0,
-            'pending_replies' => (clone $baseQuery)->whereNull('balasan_pemilik')->count(),
-            'reviews_bulan_ini' => (clone $baseQuery)->whereMonth('created_at', now()->month)->count(),
-            'reviews_with_photos' => (clone $baseQuery)->whereNotNull('photos')->where('photos', '!=', '[]')->count(),
-            'verified_reviews' => (clone $baseQuery)->where('is_verified', true)->count()
+            'average_rating' => round((clone $baseQuery)->avg('rating') ?? 0, 1),
+            'pending_replies' => (clone $baseQuery)->whereNull('pemilik_reply')->count(),
+            'reviews_bulan_ini' => (clone $baseQuery)->whereMonth('tanggal_review', now()->month)->count(),
+            'approved_reviews' => (clone $baseQuery)->where('is_approved', true)->count(),
+            'not_approved_reviews' => (clone $baseQuery)->where('is_approved', false)->count()
         ];
 
         // Rating distribution
@@ -81,8 +81,8 @@ class ReviewController extends Controller
         for ($i = 5; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $count = (clone $baseQuery)
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
+                ->whereYear('tanggal_review', $date->year)
+                ->whereMonth('tanggal_review', $date->month)
                 ->count();
             
             $monthlyTrend[] = [
@@ -104,26 +104,13 @@ class ReviewController extends Controller
         ));
     }
 
-    public function show($id)
-    {
-        $review = Review::with(['penyewa', 'properti', 'sewa'])
-            ->findOrFail($id);
-        
-        // Check ownership
-        if ($review->properti->pemilik_id !== Auth::id()) {
-            abort(403, 'Unauthorized access');
-        }
-
-        return view('pemilik.reviews.show', compact('review'));
-    }
-
     public function reply(Request $request, $id)
     {
         $request->validate([
-            'balasan_pemilik' => 'required|string|max:1000',
+            'pemilik_reply' => 'required|string|max:1000',
         ], [
-            'balasan_pemilik.required' => 'Balasan tidak boleh kosong',
-            'balasan_pemilik.max' => 'Balasan maksimal 1000 karakter'
+            'pemilik_reply.required' => 'Balasan tidak boleh kosong',
+            'pemilik_reply.max' => 'Balasan maksimal 1000 karakter'
         ]);
 
         $review = Review::findOrFail($id);
@@ -133,15 +120,18 @@ class ReviewController extends Controller
             abort(403);
         }
 
-        $review->markAsReplied($request->balasan_pemilik);
+        $review->update([
+            'pemilik_reply' => $request->pemilik_reply,
+            'reply_date' => now()
+        ]);
 
         return back()->with('success', '✅ Balasan berhasil dikirim!');
     }
 
-    public function updateVisibility(Request $request, $id)
+    public function updateApproval(Request $request, $id)
     {
         $request->validate([
-            'is_public' => 'required|boolean'
+            'is_approved' => 'required|boolean'
         ]);
 
         $review = Review::findOrFail($id);
@@ -150,9 +140,9 @@ class ReviewController extends Controller
             abort(403);
         }
 
-        $review->update(['is_public' => $request->is_public]);
+        $review->update(['is_approved' => $request->is_approved]);
 
-        $status = $request->is_public ? 'dipublikasi' : 'disembunyikan';
+        $status = $request->is_approved ? 'disetujui' : 'tidak disetujui';
         return back()->with('success', "✅ Review berhasil {$status}!");
     }
 
@@ -173,7 +163,7 @@ class ReviewController extends Controller
     {
         $request->validate([
             'review_ids' => 'required|array|min:1',
-            'action' => 'required|in:reply,hide,show,delete',
+            'action' => 'required|in:reply,approve,disapprove,delete',
             'bulk_reply_text' => 'required_if:action,reply|string|max:1000'
         ]);
 
@@ -196,25 +186,38 @@ class ReviewController extends Controller
         switch ($action) {
             case 'reply':
                 $updated = Review::whereIn('id_review', $reviewIds)
-                    ->whereNull('balasan_pemilik')
+                    ->whereNull('pemilik_reply')
+                    ->whereHas('properti', function($query) {
+                        $query->where('pemilik_id', Auth::id());
+                    })
                     ->update([
-                        'balasan_pemilik' => $request->bulk_reply_text,
-                        'tanggal_balasan' => now()
+                        'pemilik_reply' => $request->bulk_reply_text,
+                        'reply_date' => now()
                     ]);
                 break;
 
-            case 'hide':
+            case 'approve':
                 $updated = Review::whereIn('id_review', $reviewIds)
-                    ->update(['is_public' => false]);
+                    ->whereHas('properti', function($query) {
+                        $query->where('pemilik_id', Auth::id());
+                    })
+                    ->update(['is_approved' => true]);
                 break;
 
-            case 'show':
+            case 'disapprove':
                 $updated = Review::whereIn('id_review', $reviewIds)
-                    ->update(['is_public' => true]);
+                    ->whereHas('properti', function($query) {
+                        $query->where('pemilik_id', Auth::id());
+                    })
+                    ->update(['is_approved' => false]);
                 break;
 
             case 'delete':
-                $updated = Review::whereIn('id_review', $reviewIds)->delete();
+                $updated = Review::whereIn('id_review', $reviewIds)
+                    ->whereHas('properti', function($query) {
+                        $query->where('pemilik_id', Auth::id());
+                    })
+                    ->delete();
                 break;
         }
 
@@ -222,24 +225,5 @@ class ReviewController extends Controller
             'success' => true,
             'message' => "✅ Berhasil memproses {$updated} review"
         ]);
-    }
-
-    public function quickStats()
-    {
-        $stats = [
-            'pending_replies' => Review::whereHas('properti', function($q) {
-                $q->where('pemilik_id', Auth::id());
-            })->whereNull('balasan_pemilik')->count(),
-            
-            'new_today' => Review::whereHas('properti', function($q) {
-                $q->where('pemilik_id', Auth::id());
-            })->whereDate('created_at', today())->count(),
-            
-            'average_rating' => Review::whereHas('properti', function($q) {
-                $q->where('pemilik_id', Auth::id());
-            })->avg('rating') ?? 0
-        ];
-
-        return response()->json($stats);
     }
 }
