@@ -53,12 +53,20 @@
                                 @enderror
                             </div>
                             <div>
-                                <label for="luas_tanah" class="block text-sm font-medium mb-2">Luas Tanah (m²)</label>
-                                <input type="number" id="luas_tanah" name="luas_tanah" value="{{ old('luas_tanah') }}" min="0" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded {{ $errors->has('luas_tanah') ? 'border-red-500' : 'border-gray-300' }}">
-                                @error('luas_tanah')
+                                <label for="kamar_mandi" class="block text-sm font-medium mb-2">Kamar Mandi</label>
+                                <input type="number" id="kamar_mandi" name="kamar_mandi" value="{{ old('kamar_mandi') }}" min="0" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded {{ $errors->has('kamar_mandi') ? 'border-red-500' : 'border-gray-300' }}">
+                                @error('kamar_mandi')
                                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
+                        </div>
+
+                        <div>
+                            <label for="luas_tanah" class="block text-sm font-medium mb-2">Luas Tanah (m²)</label>
+                            <input type="number" id="luas_tanah" name="luas_tanah" value="{{ old('luas_tanah') }}" min="0" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded {{ $errors->has('luas_tanah') ? 'border-red-500' : 'border-gray-300' }}">
+                            @error('luas_tanah')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div>

@@ -58,7 +58,7 @@ class RegisteredUserController extends Controller
         if ($user->hasRole('pemilik')) {
             return redirect(route('pemilik.dashboard', absolute: false));
         } elseif ($user->hasRole('penyewa')) {
-            return redirect(route('penyewa.dashboard', absolute: false));
+            return redirect(route('penyewa.browse', absolute: false));
         }
 
         return redirect(route('dashboard', absolute: false));

@@ -13,20 +13,23 @@ use App\Http\Controllers\Pemilik\PropertiController;
 use App\Http\Controllers\Pemilik\PemesananController;
 use App\Http\Controllers\Pemilik\ReviewController;
 use App\Http\Controllers\Pemilik\BookingController;
+use App\Http\Controllers\Penyewa\BrowseController;
+use App\Http\Controllers\Penyewa\PemesananController as PenyewaPemesananController;
+use App\Http\Controllers\Penyewa\ReviewController as PenyewaReviewController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 // Ganti route ini untuk redirect ke login jika belum auth
 Route::get('/', function () {
     if (Auth::check()) {
-        return redirect('/dashboard');
+        return redirect('/');
     }
     return redirect('/login');
 });
 
 // Default dashboard route that redirects to appropriate role-specific dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])->name('dashboard');
+    ->middleware(['auth'])->name('dashboard');
 
 // Admin routes
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
@@ -79,11 +82,18 @@ Route::middleware(['auth'])->prefix('pemilik')->name('pemilik.')->group(function
 });
 
 // Penyewa (Tenant) routes
-Route::middleware(['auth', \App\Http\Middleware\CheckRole::class.':penyewa'])->prefix('penyewa')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'penyewaDashboard'])->name('penyewa.dashboard');
-    Route::get('/browse', function() { return view('penyewa.browse'); })->name('penyewa.browse');
-    Route::get('/pemesanan', function() { return view('penyewa.pemesanan'); })->name('penyewa.pemesanan');
-    Route::get('/review', function() { return view('penyewa.review'); })->name('penyewa.review');
+Route::middleware(['auth'])->prefix('penyewa')->name('penyewa.')->group(function () {
+    Route::get('/browse', [BrowseController::class, 'index'])->name('browse');
+    Route::get('/browse/{id}', [BrowseController::class, 'show'])->name('browse.show');
+    
+    Route::get('/pemesanan', [PenyewaPemesananController::class, 'index'])->name('pemesanan');
+    Route::get('/pemesanan/{id}', [PenyewaPemesananController::class, 'show'])->name('pemesanan.show');
+    
+    Route::get('/reviews', [PenyewaReviewController::class, 'index'])->name('reviews');
+    Route::post('/reviews', [PenyewaReviewController::class, 'store'])->name('reviews.store');
+    Route::get('/reviews/{id}/edit', [PenyewaReviewController::class, 'edit'])->name('reviews.edit');
+    Route::put('/reviews/{id}', [PenyewaReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{id}', [PenyewaReviewController::class, 'destroy'])->name('reviews.destroy');
 });
 
 Route::middleware('auth')->group(function () {
@@ -96,11 +106,17 @@ Route::middleware('auth')->group(function () {
 Route::get('/test-login-pemilik', function() {
     $user = \App\Models\Akun::find(2); // User pemilik
     auth()->login($user);
-    return redirect('/pemilik/pemesanan')->with('success', 'Login sebagai: ' . $user->username);
+    return redirect('/dashboard')->with('success', 'Login sebagai: ' . $user->username);
 });
 
 Route::get('/test-login-admin', function() {
     $user = \App\Models\Akun::find(1); // User admin  
+    auth()->login($user);
+    return redirect('/dashboard')->with('success', 'Login sebagai: ' . $user->username);
+});
+
+Route::get('/test-login-penyewa', function() {
+    $user = \App\Models\Akun::find(3); // User penyewa  
     auth()->login($user);
     return redirect('/dashboard')->with('success', 'Login sebagai: ' . $user->username);
 });

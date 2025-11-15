@@ -20,10 +20,10 @@ class DashboardController extends Controller
         } elseif ($user->hasRole('pemilik')) {
             return redirect()->route('pemilik.dashboard');
         } elseif ($user->hasRole('penyewa')) {
-            return redirect()->route('penyewa.dashboard');
+            return redirect()->route('penyewa.browse');
         }
         
-        return redirect('/');
+        return redirect('/login');
     }    /**
      * Show the admin dashboard.
      * 
@@ -55,6 +55,6 @@ class DashboardController extends Controller
     {
         // Get user's bookings if needed for dashboard
         // $bookings = Auth::user()->bookings;
-        return view('penyewa.dashboard');
+        return view('penyewa.browse.index');
     }
 }

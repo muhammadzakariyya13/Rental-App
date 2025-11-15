@@ -33,8 +33,9 @@ class AdminPropertiController extends Controller
             'alamat' => 'required|string|max:255',
             'harga' => 'required|numeric|min:0',
             'kamar_tidur' => 'nullable|numeric|min:0',
+            'kamar_mandi' => 'nullable|numeric|min:0',
             'luas_tanah' => 'nullable|numeric|min:0',
-            'tipe' => 'nullable|in:rumah,apartemen,kontrakan,vila',
+            'tipe' => 'required|in:rumah,apartemen,kontrakan,vila',
             'pemilik_id' => 'required|exists:akun,id',
             'status' => 'required|in:tersedia,disewa,maintenance',
             'gambar' => 'required|file|image|max:5120', // 5MB max
@@ -73,6 +74,11 @@ class AdminPropertiController extends Controller
             'deskripsi' => 'required|string',
             'alamat' => 'required|string|max:255',
             'harga' => 'required|numeric|min:0',
+            'kamar_tidur' => 'nullable|numeric|min:0',
+            'kamar_mandi' => 'nullable|numeric|min:0',
+            'luas_tanah' => 'nullable|numeric|min:0',
+            'tipe' => 'required|in:rumah,apartemen,kontrakan,vila',
+            'pemilik_id' => 'required|exists:akun,id',
             'status' => 'required|in:tersedia,disewa,maintenance',
             'gambar' => 'nullable|file|image|max:5120',
         ]);

@@ -29,7 +29,11 @@
                                     <th class="px-6 py-3">ID</th>
                                     <th class="px-6 py-3">Gambar</th>
                                     <th class="px-6 py-3">Nama Properti</th>
+                                    <th class="px-6 py-3">Tipe</th>
                                     <th class="px-6 py-3">Lokasi</th>
+                                    <th class="px-6 py-3">Kamar Tidur</th>
+                                    <th class="px-6 py-3">Kamar Mandi</th>
+                                    <th class="px-6 py-3">Luas Tanah (m²)</th>
                                     <th class="px-6 py-3">Harga/Hari</th>
                                     <th class="px-6 py-3">Status</th>
                                     <th class="px-6 py-3">Pemilik</th>
@@ -48,7 +52,11 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4">{{ $prop->nama }}</td>
+                                        <td class="px-6 py-4">{{ ucfirst($prop->tipe ?? '-') }}</td>
                                         <td class="px-6 py-4">{{ $prop->alamat }}</td>
+                                        <td class="px-6 py-4">{{ $prop->kamar_tidur ?? '-' }}</td>
+                                        <td class="px-6 py-4">{{ $prop->kamar_mandi ?? '-' }}</td>
+                                        <td class="px-6 py-4">{{ $prop->luas_tanah ?? '-' }}</td>
                                         <td class="px-6 py-4">Rp {{ number_format($prop->harga, 0, ',', '.') }}</td>
                                         <td class="px-6 py-4">
                                             <span class="px-2 py-1 rounded text-xs font-medium 
@@ -57,17 +65,19 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">{{ $prop->pemilik->username ?? '-' }}</td>
-                                        <td class="px-6 py-4 space-x-2">
-                                            <a href="{{ route('admin.properti.edit', $prop->id_properti) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs inline-block">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </a>
-                                            <form action="{{ route('admin.properti.destroy', $prop->id_properti) }}" method="POST" class="inline" onclick="return confirm('Yakin ingin menghapus?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">
-                                                    <i class="fas fa-trash"></i> Hapus
-                                                </button>
-                                            </form>
+                                        <td class="px-6 py-4">
+                                            <div class="flex gap-2 justify-center items-center">
+                                                <a href="{{ route('admin.properti.edit', $prop->id_properti) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs font-medium whitespace-nowrap">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <form action="{{ route('admin.properti.destroy', $prop->id_properti) }}" method="POST" class="inline" onclick="return confirm('Yakin ingin menghapus?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-medium whitespace-nowrap">
+                                                        <i class="fas fa-trash"></i> Hapus
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty

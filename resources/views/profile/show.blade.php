@@ -14,7 +14,7 @@
     } elseif (auth()->user()->hasRole('pemilik')) {
         $dashboardRoute = route('pemilik.dashboard');
     } elseif (auth()->user()->hasRole('penyewa')) {
-        $dashboardRoute = route('penyewa.dashboard');
+        $dashboardRoute = route('penyewa.browse');
     }
     @endphp
 
