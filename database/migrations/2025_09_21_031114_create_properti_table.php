@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('harga', 15, 2); // Tipe decimal cocok untuk harga/uang
             $table->text('deskripsi');
             $table->enum('status', ['tersedia', 'disewa']);
+            $table->longText('gambar'); // Kolom untuk menyimpan file gambar (binary data)
             $table->timestamps(); // Kolom created_at dan updated_at
         }); // <-- SEHARUSNYA SEPERTI INI
     }

@@ -28,6 +28,12 @@ class Pemesanan extends Model
         return $this->belongsTo(Akun::class, 'id_akun', 'id_akun');
     }
 
+    // Alias untuk akun
+    public function penyewa()
+    {
+        return $this->akun();
+    }
+
     // Relasi ke Properti
     public function properti()
     {

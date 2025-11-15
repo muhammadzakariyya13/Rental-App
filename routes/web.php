@@ -2,6 +2,12 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AdminPropertiController;
+use App\Http\Controllers\AdminPemesananController;
+use App\Http\Controllers\AdminReviewController;
+use App\Http\Controllers\AdminLaporanController;
 use App\Http\Controllers\Pemilik\DashboardController as PemilikDashboardController;
 use App\Http\Controllers\Pemilik\PropertiController;
 use App\Http\Controllers\Pemilik\PemesananController;
@@ -23,10 +29,13 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 
 // Admin routes
-Route::middleware(['auth', \App\Http\Middleware\CheckRole::class.':admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('admin.dashboard');
-    Route::get('/users', function() { return view('admin.users'); })->name('admin.users');
-    Route::get('/roles', function() { return view('admin.roles'); })->name('admin.roles');
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::resource('users', AdminUserController::class);
+    Route::resource('properti', AdminPropertiController::class);
+    Route::resource('pemesanan', AdminPemesananController::class)->only(['index', 'show', 'destroy']);
+    Route::resource('reviews', AdminReviewController::class)->only(['index', 'destroy']);
+    Route::get('/laporan', [AdminLaporanController::class, 'index'])->name('laporan');
 });
 
 // Pemilik Routes

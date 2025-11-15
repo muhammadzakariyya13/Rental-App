@@ -23,7 +23,8 @@ class Properti extends Model
         'luas_bangunan',
         'deskripsi',
         'status',
-        'pemilik_id' // ← UBAH dari id_pemilik ke pemilik_id
+        'pemilik_id',
+        'gambar'
     ];
 
     protected $casts = [
@@ -50,6 +51,11 @@ class Properti extends Model
     public function sewas()
     {
         return $this->hasMany(Sewa::class, 'id_properti', 'id_properti');
+    }
+
+    public function pemesanan()
+    {
+        return $this->hasMany(Pemesanan::class, 'id_properti', 'id_properti');
     }
 
     // Methods for reviews and ratings

@@ -8,16 +8,11 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::table('reviews', function (Blueprint $table) {
-            $table->text('pemilik_reply')->nullable()->after('review');
-            $table->timestamp('reply_date')->nullable()->after('pemilik_reply');
-        });
+        // Kolom sudah ditambahkan di create_reviews_table
     }
 
     public function down()
     {
-        Schema::table('reviews', function (Blueprint $table) {
-            $table->dropColumn(['pemilik_reply', 'reply_date']);
-        });
+        // Tidak ada perubahan untuk di-rollback
     }
 };

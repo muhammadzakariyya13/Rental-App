@@ -13,21 +13,32 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-3 sm:-my-px sm:ms-10 sm:flex items-center">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                    
+
                     @if(Auth::user()->hasRole('admin'))
-                        <x-nav-link :href="route('admin.users')" :active="request()->routeIs('admin.users')">
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                            {{ __('Dashboard Admin') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users*')">
                             {{ __('Kelola Pengguna') }}
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.roles')" :active="request()->routeIs('admin.roles')">
-                            {{ __('Kelola Role') }}
+                        <x-nav-link :href="route('admin.properti.index')" :active="request()->routeIs('admin.properti*')">
+                            {{ __('Kelola Properti') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.pemesanan.index')" :active="request()->routeIs('admin.pemesanan*')">
+                            {{ __('Kelola Pemesanan') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.reviews.index')" :active="request()->routeIs('admin.reviews*')">
+                            {{ __('Kelola Review') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.laporan')" :active="request()->routeIs('admin.laporan')">
+                            {{ __('Laporan') }}
                         </x-nav-link>
                     @endif
 
                     @if(Auth::user()->hasRole('pemilik'))
-                        {{-- ROUTE NAMES YANG BENAR --}}
+                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                            {{ __('Dashboard') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('pemilik.properti')" :active="request()->routeIs('pemilik.properti*')">
                             {{ __('Kelola Properti') }}
                         </x-nav-link>

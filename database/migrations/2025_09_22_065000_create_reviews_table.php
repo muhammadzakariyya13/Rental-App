@@ -14,11 +14,11 @@ return new class extends Migration
             $table->unsignedBigInteger('id_penyewa'); 
             $table->integer('rating');
             $table->text('review')->nullable();
+            $table->text('pemilik_reply')->nullable();
             $table->boolean('is_approved')->default(true);
             $table->timestamp('tanggal_review')->useCurrent();
+            $table->timestamp('reply_date')->nullable();
             $table->timestamps();
-            $table->text('pemilik_reply')->nullable()->after('review');
-            $table->timestamp('reply_date')->nullable()->after('pemilik_reply');
 
             $table->foreign('id_properti')->references('id_properti')->on('properti')->onDelete('cascade');
             // GANTI dari 'users' menjadi 'akun'

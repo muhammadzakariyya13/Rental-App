@@ -14,9 +14,9 @@ return new class extends Migration
             
             // Tambahkan kolom yang belum ada
             $table->text('alamat')->after('nama');
-            $table->enum('tipe', ['rumah', 'apartemen', 'kontrakan', 'vila'])->after('harga');
-            $table->integer('kamar_tidur')->after('tipe');
-            $table->integer('kamar_mandi')->after('kamar_tidur');
+            $table->enum('tipe', ['rumah', 'apartemen', 'kontrakan', 'vila'])->nullable()->after('harga');
+            $table->integer('kamar_tidur')->nullable()->after('tipe');
+            $table->integer('kamar_mandi')->nullable()->after('kamar_tidur');
             $table->integer('luas_tanah')->nullable()->after('kamar_mandi');
             $table->integer('luas_bangunan')->nullable()->after('luas_tanah');
             
