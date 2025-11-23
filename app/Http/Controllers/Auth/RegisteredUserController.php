@@ -38,8 +38,8 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Cari role customer
-        $customerRole = Role::where('nama', 'customer')->first();
+    // Cari role user
+    $userRole = Role::where('nama', 'user')->first();
 
         // Map field Breeze (name) ke kolom Akun (nama)
         $user = Akun::create([
@@ -48,7 +48,7 @@ class RegisteredUserController extends Controller
             'phone_number' => $request->phone_number,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role_id' => $customerRole?->id,
+            'role_id' => $userRole?->id,
         ]);
 
         event(new Registered($user));

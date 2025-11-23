@@ -13,9 +13,8 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         // Ambil semua role
-        $admin = Role::where('nama', 'admin')->first();
-        $officer = Role::where('nama', 'officer')->first();
-        $customer = Role::where('nama', 'customer')->first();
+    $admin = Role::where('nama', 'admin')->first();
+    $user = Role::where('nama', 'user')->first();
 
         // Ambil semua permission
         $allPermissions = Permission::pluck('id')->toArray();
@@ -25,20 +24,12 @@ class RolePermissionSeeder extends Seeder
             $admin->permissions()->sync($allPermissions);
         }
 
-        // Contoh: officer hanya dapat permission user dan properti
-        if ($officer) {
-            $officerPermissions = Permission::whereIn('nama', [
-                'view_user', 'create_user', 'edit_user', 'view_property', 'create_property'
-            ])->pluck('id')->toArray();
-            $officer->permissions()->sync($officerPermissions);
-        }
-
-        // Contoh: customer hanya dapat view_property
-        if ($customer) {
-            $customerPermissions = Permission::whereIn('nama', [
+        // User hanya dapat view_property (dan permission lain yang kamu anggap wajar untuk user)
+        if ($user) {
+            $userPermissions = Permission::whereIn('nama', [
                 'view_property'
             ])->pluck('id')->toArray();
-            $customer->permissions()->sync($customerPermissions);
+            $user->permissions()->sync($userPermissions);
         }
     }
 }

@@ -51,4 +51,15 @@ class PropertiController extends Controller
         $item->update($data);
         return redirect()->route('admin.properti.index')->with('status','Properti diperbarui');
     }
+
+    public function destroy($id)
+    {
+        $item = Properti::where('id_properti',$id)->firstOrFail();
+        try {
+            $item->delete();
+            return redirect()->route('admin.properti.index')->with('status','Properti dihapus');
+        } catch (\Throwable $e) {
+            return back()->withErrors('Gagal menghapus: '.$e->getMessage());
+        }
+    }
 }

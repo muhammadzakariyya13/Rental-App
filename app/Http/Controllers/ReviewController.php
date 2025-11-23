@@ -36,16 +36,16 @@ class ReviewController extends Controller
 		return redirect()->route('properti.show', $properti->id_properti)->with('status', 'Review berhasil ditambahkan');
 	}
 
-	// Hapus review (Admin dapat hapus semua, user hanya miliknya)
+	// Hapus review (hanya penulis review yang boleh menghapus)
 	public function destroy($id)
 	{
 		$review = Review::findOrFail($id);
-		$user = auth()->user();
 
-		if (!($user->isAdmin() || $review->id_akun === $user->id)) {
+		// Pastikan yang melakukan request adalah penulis review
+		if (auth()->id() !== $review->id_akun) {
 			abort(403, 'Tidak diizinkan menghapus review ini');
 		}
-        
+
 		$review->delete();
 		return back()->with('status', 'Review dihapus');
 	}

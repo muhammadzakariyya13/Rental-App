@@ -19,11 +19,7 @@ class DatabaseSeeder extends Seeder
             PemesananSeeder::class,
             KontrakSeeder::class,
 
-            // Pivot dan relasi lain
-            AkunPemesananSeeder::class,
-
             // Reviews (tergantung akun & properti)
-            AkunReviewSeeder::class,
             ReviewSeeder::class,
         ]);
     }

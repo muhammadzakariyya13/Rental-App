@@ -16,10 +16,15 @@ class Pemesanan extends Model
         'id_akun',
         'id_properti',
         'tanggal_pemesanan',
+        'tanggal_mulai',
+        'tanggal_selesai',
+        'total_harga',
         'lama_sewa',
         'status_pemesanan',
+        'status',
         'metode_pembayaran',
         'status_pembayaran',
+        'catatan',
     ];
 
     // Relasi ke Akun

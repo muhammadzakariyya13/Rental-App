@@ -34,6 +34,42 @@ class Akun extends Authenticatable
     ];
 
     /**
+     * Get the name of the unique identifier for the user.
+     */
+    public function getAuthIdentifierName(): string
+    {
+        return $this->getKeyName(); // Use primary key 'id' instead of 'email'
+    }
+
+    /**
+     * Get the unique identifier for the user.
+     */
+    public function getAuthIdentifier(): mixed
+    {
+        return $this->getKey(); // Return the actual ID value
+    }
+
+    /**
+     * Get the password for the user.
+     */
+    public function getAuthPassword(): string
+    {
+        return $this->password;
+    }
+
+    /**
+     * Default role untuk akun baru: 'user' jika role_id tidak diisi.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Akun $akun) {
+            if (empty($akun->role_id)) {
+                $akun->role_id = \App\Models\Role::where('nama', 'user')->value('id');
+            }
+        });
+    }
+
+    /**
      * Relasi ke Role (setiap akun punya satu role)
      */
     public function role(): BelongsTo
@@ -73,13 +109,8 @@ class Akun extends Authenticatable
         return $this->role?->nama === 'admin';
     }
 
-    public function isOfficer(): bool
+    public function isUser(): bool
     {
-        return $this->role?->nama === 'officer';
-    }
-
-    public function isCustomer(): bool
-    {
-        return $this->role?->nama === 'customer';
+        return $this->role?->nama === 'user';
     }
 }

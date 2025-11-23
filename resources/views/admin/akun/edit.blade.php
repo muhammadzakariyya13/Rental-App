@@ -26,11 +26,17 @@
       @error('username')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror
     </div>
     <div>
-      <label>Role</label>
+      <label>Role <span class="text-gray-500 text-xs">(hanya admin & user)</span></label>
       <select name="role_id" class="border rounded w-full p-2">
-        <option value="">-</option>
+        @php
+          // Default ke role 'user' jika akun belum punya role
+          $selectedRoleId = old('role_id', $item->role_id);
+          if (!$selectedRoleId) {
+              $selectedRoleId = optional($roles->firstWhere('nama','user'))->id;
+          }
+        @endphp
         @foreach($roles as $r)
-          <option value="{{ $r->id }}" @selected(old('role_id',$item->role_id)===$r->id)>{{ $r->nama }}</option>
+          <option value="{{ $r->id }}" @selected($selectedRoleId===$r->id)>{{ $r->nama }}</option>
         @endforeach
       </select>
       @error('role_id')<div class="text-red-600 text-sm">{{ $message }}</div>@enderror

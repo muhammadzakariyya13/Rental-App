@@ -17,17 +17,24 @@ class PropertiSeeder extends Seeder
         // Inisialisasi Faker untuk data berbahasa Indonesia
         $faker = Faker::create('id_ID');
 
-        // Loop untuk membuat 20 data dummy
-        for ($i = 1; $i <= 20; $i++) {
-            DB::table('properti')->insert([
-                'nama' => 'Properti ' . $faker->company . ' ' . $faker->city,
-                // Harga acak antara 500 juta hingga 3 milyar
-                'harga' => $faker->numberBetween(500000000, 3000000000),
-                'deskripsi' => $faker->realText(200),
-                'status' => $faker->randomElement(['tersedia', 'disewa']),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        // Tipe properti
+        $tipeProperti = ['Rumah', 'Apartemen', 'Kost', 'Ruko', 'Vila', 'Townhouse'];
+        
+        // Loop untuk membuat data dummy
+        for ($i = 1; $i <= 15; $i++) {
+            $namaProperti = $tipeProperti[array_rand($tipeProperti)] . ' ' . $faker->streetName . ' ' . $i;
+            
+            DB::table('properti')->updateOrInsert(
+                ['nama' => $namaProperti],
+                [
+                    'harga' => $faker->numberBetween(1000000, 15000000), // 1jt - 15jt per bulan
+                    'deskripsi' => 'Lokasi: ' . $faker->address . '. ' . $faker->realText(100) . ' Dilengkapi dengan fasilitas lengkap dan lokasi strategis.',
+                    'status' => $faker->randomElement(['tersedia', 'disewa']),
+                    'foto' => null, // Bisa diisi nanti jika ada foto
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
         }
     }
 }

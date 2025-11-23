@@ -11,6 +11,9 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
+        // Bersihkan role yang tidak diperlukan bila ada (opsional untuk migrasi non-fresh)
+        \App\Models\Role::query()->whereNotIn('nama', ['admin','user'])->delete();
+
         Role::insert([
             [
                 'nama' => 'admin',
@@ -21,16 +24,8 @@ class RoleSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'nama' => 'officer',
-                'nama_tampilan' => 'Petugas',
-                'deskripsi' => 'Petugas operasional',
-                'aktif' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama' => 'customer',
-                'nama_tampilan' => 'Pelanggan',
+                'nama' => 'user',
+                'nama_tampilan' => 'Pengguna',
                 'deskripsi' => 'Pengguna aplikasi',
                 'aktif' => true,
                 'created_at' => now(),

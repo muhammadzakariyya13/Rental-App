@@ -1,31 +1,22 @@
 @extends('layouts.app')
 @section('content')
 <div class="container mx-auto p-6">
-  <h1 class="text-xl font-semibold mb-4">Daftar Kontrak</h1>
-  <div class="overflow-x-auto">
-    <table class="min-w-full border">
-      <thead>
-        <tr class="bg-gray-100">
-          <th class="p-2 border">ID</th>
-          <th class="p-2 border">Properti</th>
-          <th class="p-2 border">Mulai</th>
-          <th class="p-2 border">Akhir</th>
-          <th class="p-2 border"></th>
-        </tr>
-      </thead>
-      <tbody>
-        @foreach($items as $it)
-        <tr>
-          <td class="p-2 border">{{ $it->id_kontrak }}</td>
-          <td class="p-2 border">{{ $it->properti?->nama }}</td>
-          <td class="p-2 border">{{ $it->tgl_mulai_sewa }}</td>
-          <td class="p-2 border">{{ $it->tgl_akhir_sewa }}</td>
-          <td class="p-2 border"><a class="text-blue-600" href="{{ route('admin.kontrak.show',$it->id_kontrak) }}">Detail</a></td>
-        </tr>
-        @endforeach
-      </tbody>
-    </table>
+  <h1 class="text-xl font-semibold mb-6">Daftar Kontrak</h1>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    @forelse($items as $it)
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="text-sm text-gray-600">ID: {{ $it->id_kontrak }}</div>
+        <div class="text-lg font-semibold">{{ $it->properti?->nama ?? '-' }}</div>
+        <div class="mt-2 text-gray-700 text-sm">Mulai: {{ $it->tgl_mulai_sewa }}</div>
+        <div class="text-gray-700 text-sm">Akhir: {{ $it->tgl_akhir_sewa }}</div>
+        <div class="mt-4">
+          <a class="inline-block bg-blue-600 text-white px-3 py-2 rounded" href="{{ route('admin.kontrak.show',$it->id_kontrak) }}">Detail</a>
+        </div>
+      </div>
+    @empty
+      <div class="col-span-full text-center text-gray-500">Belum ada data.</div>
+    @endforelse
   </div>
-  <div class="mt-4">{{ $items->links() }}</div>
+  <div class="mt-6">{{ $items->links() }}</div>
 </div>
 @endsection
