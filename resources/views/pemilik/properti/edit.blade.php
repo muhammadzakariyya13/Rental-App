@@ -11,11 +11,71 @@
                 <div class="p-6">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Data Properti</h3>
                     
-                    <form action="{{ route('pemilik.properti.update', $properti->id_properti) }}" method="POST">
+                    <form action="{{ route('pemilik.properti.update', $properti->id_properti) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Foto Properti -->
+                            <div class="col-span-2">
+                                <label for="gambar" class="block text-sm font-medium text-gray-700 mb-2">Foto Properti</label>
+                                <div class="mt-2">
+                                    <!-- Current Image Preview -->
+                                    @if($properti->gambar)
+                                        <div class="mb-4">
+                                            <p class="text-sm text-gray-600 mb-2">Foto saat ini:</p>
+                                            @php
+                                                $imageSrc = $properti->gambar;
+                                                if (!str_starts_with($imageSrc, 'data:image')) {
+                                                    $imageSrc = 'data:image/jpeg;base64,' . $imageSrc;
+                                                }
+                                            @endphp
+                                            <img src="{{ $imageSrc }}" 
+                                                 alt="Current Photo" 
+                                                 class="w-48 h-32 object-cover rounded-lg border-2 border-gray-300"
+                                                 id="current-image">
+                                        </div>
+                                    @endif
+                                    
+                                    <!-- File Input -->
+                                    <input type="file" 
+                                           id="gambar" 
+                                           name="gambar" 
+                                           accept="image/*"
+                                           onchange="previewImage(event)"
+                                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                    <p class="mt-1 text-xs text-gray-500">JPG, PNG, atau JPEG (Max. 2MB). Biarkan kosong jika tidak ingin mengubah foto.</p>
+                                    
+                                    <!-- New Image Preview -->
+                                    <img id="preview-image" 
+                                         src="" 
+                                         alt="Preview" 
+                                         class="hidden mt-4 w-48 h-32 object-cover rounded-lg border-2 border-blue-500">
+                                </div>
+                                <x-input-error class="mt-2" :messages="$errors->get('gambar')" />
+                            </div>
+
+                            <script>
+                            function previewImage(event) {
+                                const file = event.target.files[0];
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        const preview = document.getElementById('preview-image');
+                                        preview.src = e.target.result;
+                                        preview.classList.remove('hidden');
+                                        
+                                        // Hide current image
+                                        const currentImage = document.getElementById('current-image');
+                                        if (currentImage) {
+                                            currentImage.classList.add('opacity-50');
+                                        }
+                                    }
+                                    reader.readAsDataURL(file);
+                                }
+                            }
+                            </script>
+
                             <!-- Nama Properti -->
                             <div class="col-span-2">
                                 <label for="nama" class="block text-sm font-medium text-gray-700">Nama Properti</label>
@@ -69,13 +129,28 @@
                                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                             </div>
 
+                            <!-- Luas Tanah -->
+                            <div>
+                                <label for="luas_tanah" class="block text-sm font-medium text-gray-700">Luas Tanah (m²)</label>
+                                <input type="number" name="luas_tanah" id="luas_tanah" 
+                                       value="{{ $properti->luas_tanah }}"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            </div>
+
+                            <!-- Luas Bangunan -->
+                            <div>
+                                <label for="luas_bangunan" class="block text-sm font-medium text-gray-700">Luas Bangunan (m²)</label>
+                                <input type="number" name="luas_bangunan" id="luas_bangunan" 
+                                       value="{{ $properti->luas_bangunan }}"
+                                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            </div>
+
                             <!-- Status -->
                             <div>
                                 <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                                 <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                                     <option value="tersedia" {{ $properti->status == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
                                     <option value="disewa" {{ $properti->status == 'disewa' ? 'selected' : '' }}>Disewa</option>
-                                    <option value="maintenance" {{ $properti->status == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
                                 </select>
                             </div>
 
@@ -84,33 +159,6 @@
                                 <label for="deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi</label>
                                 <textarea name="deskripsi" id="deskripsi" rows="4" 
                                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ $properti->deskripsi }}</textarea>
-                            </div>
-
-                            <!-- Foto Properti -->
-                            <div class="grid grid-cols-1 gap-6">
-                                <div>
-                                    <label for="foto" class="block text-sm font-medium text-gray-700 mb-2">
-                                        Upload Foto Properti
-                                    </label>
-                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                                        <div class="space-y-1 text-center">
-                                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                            <div class="flex text-sm text-gray-600">
-                                                <label for="foto" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500">
-                                                    <span>Upload files</span>
-                                                    <input id="foto" name="foto[]" type="file" class="sr-only" multiple accept="image/*">
-                                                </label>
-                                                <p class="pl-1">atau drag and drop</p>
-                                            </div>
-                                            <p class="text-xs text-gray-500">PNG, JPG, JPEG up to 10MB</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Preview existing photos -->
-                                    <div id="photo-preview" class="grid grid-cols-3 gap-4 mt-4"></div>
-                                </div>
                             </div>
 
                             <!-- Submit Button -->

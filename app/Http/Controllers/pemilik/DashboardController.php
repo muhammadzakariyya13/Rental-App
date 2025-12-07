@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Pemilik;
 
 use App\Http\Controllers\Controller;
 use App\Models\Properti;
-use App\Models\Sewa;
+use App\Models\Pemesanan;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,51 +13,65 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Hitung data untuk dashboard
-        $jumlahProperti = Properti::where('pemilik_id', auth()->id())->count();
-        $propertiTersedia = Properti::where('pemilik_id', auth()->id())
-                                  ->where('status', 'tersedia')->count();
-        $propertiDisewa = Properti::where('pemilik_id', auth()->id())
-                                ->where('status', 'disewa')->count();
+        // PROPERTI STATS
+        $totalProperti = Properti::where('pemilik_id', auth()->id())->count();
         
-        // PENDAPATAN ANALYTICS - DATA REAL
-        $pendapatanHariIni = Sewa::whereHas('properti', function($q) {
+        // BOOKING STATS
+        $activeBookings = Pemesanan::whereHas('properti', function($q) {
             $q->where('pemilik_id', Auth::id());
         })
-        ->where('status', 'diterima')
-        ->whereDate('created_at', today())
-        ->sum('total_harga');
+        ->where('status_pemesanan', 'confirmed')
+        ->where('status_pembayaran', 'sudah_bayar')
+        ->whereRaw('DATE_ADD(tanggal_pemesanan, INTERVAL lama_sewa MONTH) >= NOW()')
+        ->count();
 
-        $pendapatanBulanIni = Sewa::whereHas('properti', function($q) {
+        // PENDAPATAN ANALYTICS - DATA REAL dari Pemesanan
+        $monthlyIncome = Pemesanan::whereHas('properti', function($q) {
             $q->where('pemilik_id', Auth::id());
         })
-        ->where('status', 'diterima')
-        ->whereMonth('created_at', now()->month)
-        ->whereYear('created_at', now()->year)
+        ->where('status_pemesanan', 'confirmed')
+        ->where('status_pembayaran', 'sudah_bayar')
+        ->whereMonth('paid_at', now()->month)
+        ->whereYear('paid_at', now()->year)
         ->sum('total_harga');
 
-        $pendapatanTahunIni = Sewa::whereHas('properti', function($q) {
+        $pendapatanTahunIni = Pemesanan::whereHas('properti', function($q) {
             $q->where('pemilik_id', Auth::id());
         })
-        ->where('status', 'diterima')
-        ->whereYear('created_at', now()->year)
+        ->where('status_pemesanan', 'confirmed')
+        ->where('status_pembayaran', 'sudah_bayar')
+        ->whereYear('paid_at', now()->year)
         ->sum('total_harga');
 
-        // REVIEW DATA
-        $reviewTerbaru = Review::whereHas('properti', function($q) {
+        // REVIEW DATA - Reviews yang belum dibalas
+        $pendingReviews = Review::whereHas('properti', function($q) {
             $q->where('pemilik_id', Auth::id());
         })->whereNull('pemilik_reply')->count();
 
-        // CHART DATA untuk 6 bulan terakhir
-        $chartData = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $revenue = Sewa::whereHas('properti', function($q) {
+        // PENDING ACTIONS
+        $pendingActions = [
+            'new_bookings' => Pemesanan::whereHas('properti', function($q) {
+                $q->where('pemilik_id', Auth::id());
+            })->where('status_pemesanan', 'pending')->count(),
+            'checkout_today' => Pemesanan::whereHas('properti', function($q) {
                 $q->where('pemilik_id', Auth::id());
             })
-            ->where('status', 'diterima')
-            ->whereYear('created_at', $date->year)
-            ->whereMonth('created_at', $date->month)
+            ->where('status_pemesanan', 'confirmed')
+            ->whereRaw('DATE_ADD(tanggal_pemesanan, INTERVAL lama_sewa MONTH) = CURDATE()')
+            ->count()
+        ];
+
+        // CHART DATA untuk 12 bulan terakhir
+        $chartData = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $revenue = Pemesanan::whereHas('properti', function($q) {
+                $q->where('pemilik_id', Auth::id());
+            })
+            ->where('status_pemesanan', 'confirmed')
+            ->where('status_pembayaran', 'sudah_bayar')
+            ->whereYear('paid_at', $date->year)
+            ->whereMonth('paid_at', $date->month)
             ->sum('total_harga');
             
             $chartData[] = [
@@ -66,25 +80,65 @@ class DashboardController extends Controller
             ];
         }
 
-        // PROPERTI TERPOPULER berdasarkan booking
-        $propertiTerpopuler = Properti::withCount(['sewas as total_bookings' => function($q) {
-                $q->where('status', 'diterima');
+        // TOP PROPERTIES dengan revenue dan booking count
+        $propertyStats = Properti::where('pemilik_id', Auth::id())
+            ->withCount(['pemesanan as total_bookings' => function($q) {
+                $q->where('status_pemesanan', 'confirmed');
             }])
-            ->where('pemilik_id', Auth::id())
-            ->orderBy('total_bookings', 'desc')
+            ->with(['pemesanan' => function($q) {
+                $q->where('status_pemesanan', 'confirmed')
+                  ->where('status_pembayaran', 'sudah_bayar');
+            }])
+            ->get()
+            ->map(function($properti) {
+                $properti->total_revenue = $properti->pemesanan->sum('total_harga');
+                $properti->avg_rating = $properti->reviews()->avg('rating') ?? 0;
+                return $properti;
+            })
+            ->sortByDesc('total_revenue')
+            ->take(5);
+
+        // RECENT BOOKINGS - 5 pemesanan terbaru
+        $recentBookings = Pemesanan::with(['penyewa', 'properti'])
+            ->whereHas('properti', function($q) {
+                $q->where('pemilik_id', Auth::id());
+            })
+            ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
-        
+
+        // RECENT REVIEWS - 5 review terbaru yang perlu dibalas
+        $recentReviews = Review::with(['penyewa', 'properti'])
+            ->whereHas('properti', function($q) {
+                $q->where('pemilik_id', Auth::id());
+            })
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // OCCUPANCY RATE - persentase properti yang sedang aktif disewa
+        $occupancyRate = $totalProperti > 0 
+            ? ($activeBookings / $totalProperti) * 100 
+            : 0;
+
+        // TOTAL REVIEWS COUNT
+        $totalReviews = Review::whereHas('properti', function($q) {
+            $q->where('pemilik_id', Auth::id());
+        })->count();
+
         return view('pemilik.dashboard', compact(
-            'jumlahProperti', 
-            'propertiTersedia', 
-            'propertiDisewa',
-            'pendapatanHariIni',
-            'pendapatanBulanIni',
+            'totalProperti',
+            'activeBookings',
+            'monthlyIncome',
             'pendapatanTahunIni',
-            'reviewTerbaru',
+            'pendingReviews',
+            'pendingActions',
             'chartData',
-            'propertiTerpopuler'
+            'propertyStats',
+            'recentBookings',
+            'recentReviews',
+            'occupancyRate',
+            'totalReviews'
         ));
     }
 }

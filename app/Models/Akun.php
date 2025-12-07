@@ -17,7 +17,7 @@ class Akun extends Authenticatable
         'email',
         'username', 
         'password',
-        'remember_token',
+        'profile_photo',
     ];
 
     protected $hidden = [

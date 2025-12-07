@@ -17,24 +17,59 @@ class AdminController extends Controller
         $totalPemesanan = Pemesanan::count();
         $totalReview = Review::count();
 
-        // Statistik untuk grafik
-        $pemesananPerBulan = Pemesanan::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
-            ->groupBy('bulan')
-            ->orderBy('bulan')
+        // 1. Status Pemesanan
+        $statusPemesanan = [
+            'pending' => Pemesanan::where('status_pemesanan', 'pending')->count(),
+            'confirmed' => Pemesanan::where('status_pemesanan', 'confirmed')->count(),
+            'cancelled' => Pemesanan::where('status_pemesanan', 'cancelled')->count(),
+        ];
+
+        // 2. Status Pembayaran
+        $statusPembayaran = [
+            'belum_bayar' => Pemesanan::where('status_pembayaran', 'belum_bayar')->count(),
+            'sudah_bayar' => Pemesanan::where('status_pembayaran', 'sudah_bayar')->count(),
+        ];
+
+        // 3. Properti Terpopuler (Top 5)
+        $propertiTerpopuler = Pemesanan::select('id_properti')
+            ->selectRaw('COUNT(*) as total_pemesanan')
+            ->with('properti:id_properti,nama')
+            ->groupBy('id_properti')
+            ->orderByDesc('total_pemesanan')
+            ->limit(5)
             ->get();
 
-        $revenuePerBulan = Pemesanan::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
+        // 4. Review Per Bulan
+        $reviewData = Review::selectRaw('MONTH(created_at) as bulan, COUNT(*) as total')
+            ->whereYear('created_at', date('Y'))
             ->groupBy('bulan')
-            ->orderBy('bulan')
-            ->get();
+            ->pluck('total', 'bulan');
+
+        // Nama bulan dalam bahasa Indonesia
+        $namaBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        // Buat array lengkap untuk 12 bulan (Review)
+        $reviewPerBulan = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $reviewPerBulan[] = [
+                'bulan' => $namaBulan[$i],
+                'total' => $reviewData[$i] ?? 0
+            ];
+        }
 
         return view('admin.dashboard', compact(
             'totalUsers',
             'totalProperti',
             'totalPemesanan',
             'totalReview',
-            'pemesananPerBulan',
-            'revenuePerBulan'
+            'statusPemesanan',
+            'statusPembayaran',
+            'propertiTerpopuler',
+            'reviewPerBulan'
         ));
     }
 }

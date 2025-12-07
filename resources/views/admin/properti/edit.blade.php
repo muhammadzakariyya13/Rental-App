@@ -38,7 +38,7 @@
                         </div>
 
                         <div>
-                            <label for="harga" class="block text-sm font-medium mb-2">Harga Per Hari</label>
+                            <label for="harga" class="block text-sm font-medium mb-2">Harga Per Bulan</label>
                             <input type="number" id="harga" name="harga" value="{{ $properti->harga }}" required min="0" step="0.01" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded {{ $errors->has('harga') ? 'border-red-500' : 'border-gray-300' }}">
                             @error('harga')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

@@ -31,9 +31,29 @@ class ReviewController extends Controller
         return view('penyewa.reviews.index', compact('reviews', 'properties'));
     }
 
+    public function create($id)
+    {
+        $pemesanan = Pemesanan::with(['properti', 'akun'])
+            ->findOrFail($id);
+        
+        // Verify ownership
+        if ($pemesanan->id_akun != Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Verify booking is paid
+        if ($pemesanan->status_pemesanan != 'confirmed' || $pemesanan->status_pembayaran != 'sudah_bayar') {
+            return redirect()->route('penyewa.pemesanan.index')
+                ->with('error', 'Anda hanya bisa memberikan review setelah pembayaran selesai');
+        }
+
+        return view('penyewa.reviews.create', compact('pemesanan'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
+            'pemesanan_id' => 'nullable|exists:pemesanan,id_pemesanan',
             'properti_id' => 'required|exists:properti,id_properti',
             'rating' => 'required|integer|min:1|max:5',
             'review' => 'required|string|min:10',
@@ -41,16 +61,25 @@ class ReviewController extends Controller
 
         $user = Auth::user();
 
+        // If pemesanan_id is provided, verify it belongs to the user
+        if ($request->pemesanan_id) {
+            $pemesanan = Pemesanan::findOrFail($request->pemesanan_id);
+            if ($pemesanan->id_akun != $user->id) {
+                abort(403, 'Unauthorized');
+            }
+        }
+
         Review::create([
             'id_properti' => $request->properti_id,
-            'id_akun' => $user->id,
+            'id_penyewa' => $user->id,
+            'id_pemesanan' => $request->pemesanan_id,
             'rating' => $request->rating,
-            'isi_review' => $request->review,
-            'is_approved' => false, // Admin harus approve
+            'review' => $request->review,
+            'is_approved' => 1, // Auto-approve (langsung tampil)
         ]);
 
-        return redirect()->route('penyewa.reviews')
-            ->with('success', 'Review berhasil dikirim dan menunggu persetujuan admin');
+        return redirect()->route('penyewa.pemesanan.index')
+            ->with('success', 'Review berhasil dikirim dan langsung dipublikasikan!');
     }
 
     public function edit($id)

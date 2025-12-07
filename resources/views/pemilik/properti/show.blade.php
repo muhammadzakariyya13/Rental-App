@@ -12,6 +12,18 @@
                     </svg>
                     Edit
                 </a>
+                <form action="{{ route('pemilik.properti.destroy', $properti->id_properti) }}" method="POST" class="inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" 
+                            onclick="return confirm('Yakin ingin hapus properti {{ $properti->nama }}?')"
+                            class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Hapus
+                    </button>
+                </form>
                 <a href="{{ route('pemilik.properti') }}" 
                    class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,7 +139,7 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <div class="text-lg leading-6 font-medium text-white">0</div>
+                                <div class="text-lg leading-6 font-medium text-white">{{ $hariDisewa ?? 0 }}</div>
                                 <div class="text-purple-100">Hari Disewa</div>
                             </div>
                         </div>
@@ -229,60 +241,31 @@
                         <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
                             <div class="flex justify-between items-center">
                                 <h3 class="text-lg font-medium text-gray-900">Foto Properti</h3>
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                    {{ $properti->images->count() }} Foto
-                                </span>
                             </div>
                         </div>
                         
                         <div class="p-6">
-                            @if($properti->images->count() > 0)
-                                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                    @foreach($properti->images as $image)
-                                        <div class="relative group">
-                                            <img src="{{ $image->image_url }}" 
-                                                alt="Foto {{ $properti->nama }}"
-                                                class="w-full h-32 object-cover rounded-lg shadow-sm">
-                                            
-                                            <!-- Primary Badge -->
-                                            @if($image->is_primary)
-                                                <div class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                                                    Utama
-                                                </div>
-                                            @endif
-                                            
-                                            <!-- Action Buttons -->
-                                            <div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                @if(!$image->is_primary)
-                                                    <button onclick="setPrimaryImage({{ $properti->id_properti }}, {{ $image->id }})"
-                                                            class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
-                                                        ★
-                                                    </button>
-                                                @endif
-                                                
-                                                <button onclick="deleteImage({{ $properti->id_properti }}, {{ $image->id }})"
-                                                        class="bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
-                                                    ×
-                                                </button>
-                                            </div>
-                                            
-                                            <!-- Order Number -->
-                                            <div class="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-                                                {{ $image->order_index + 1 }}
-                                            </div>
-                                        </div>
-                                    @endforeach
+                            @if($properti->gambar)
+                                <div class="flex justify-center">
+                                    @php
+                                        $imageSrc = $properti->gambar;
+                                        // Add data URI prefix if not present
+                                        if (!str_starts_with($imageSrc, 'data:image')) {
+                                            $imageSrc = 'data:image/jpeg;base64,' . $imageSrc;
+                                        }
+                                    @endphp
+                                    <img src="{{ $imageSrc }}" 
+                                        alt="Foto {{ $properti->nama }}"
+                                        class="max-w-full max-h-96 rounded-lg shadow-lg object-cover">
                                 </div>
                             @else
-                                <div class="text-center py-8">
-                                    <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                    <p class="text-gray-500 mb-4">Belum ada foto untuk properti ini</p>
-                                    <a href="{{ route('pemilik.properti.edit', $properti->id_properti) }}" 
-                                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                                        Upload Foto
-                                    </a>
+                                <div class="flex justify-center items-center h-64 bg-gray-100 rounded-lg">
+                                    <div class="text-center">
+                                        <svg class="w-16 h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <p class="text-gray-500">Belum ada foto</p>
+                                    </div>
                                 </div>
                             @endif
                         </div>
@@ -330,15 +313,15 @@
 
                                 <!-- Rating Breakdown -->
                                 <div>
-                                    @foreach($ratingDistribution as $rating => $count)
+                                    @foreach($ratingDistribution as $dist)
                                     <div class="flex items-center mb-2">
-                                        <span class="text-sm font-medium text-gray-700 w-8">{{ $rating }}★</span>
+                                        <span class="text-sm font-medium text-gray-700 w-8">{{ $dist['rating'] }}★</span>
                                         <div class="flex-1 mx-3">
                                             <div class="bg-gray-200 rounded-full h-2">
-                                                <div class="bg-yellow-400 h-2 rounded-full" style="width: {{ $properti->ratingPercentage($rating) }}%"></div>
+                                                <div class="bg-yellow-400 h-2 rounded-full" style="width: {{ $dist['percentage'] }}%"></div>
                                             </div>
                                         </div>
-                                        <span class="text-sm text-gray-500 w-12 text-right">{{ $count }}</span>
+                                        <span class="text-sm text-gray-500 w-12 text-right">{{ $dist['count'] }}</span>
                                     </div>
                                     @endforeach
                                 </div>
@@ -355,37 +338,49 @@
                                         <div class="flex items-start space-x-4">
                                             <!-- Avatar -->
                                             <div class="flex-shrink-0">
-                                                <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                                                    <span class="text-sm font-medium text-gray-700">
-                                                        {{ strtoupper(substr($review->penyewa->name ?? 'U', 0, 1)) }}
-                                                    </span>
-                                                </div>
+                                                @if($review->penyewa->profile_photo)
+                                                    <img src="{{ asset('storage/' . $review->penyewa->profile_photo) }}" 
+                                                         alt="{{ $review->penyewa->username }}"
+                                                         class="w-10 h-10 rounded-full object-cover">
+                                                @else
+                                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                                        <span class="text-sm font-bold text-white">
+                                                            {{ strtoupper(substr($review->penyewa->username ?? 'U', 0, 1)) }}
+                                                        </span>
+                                                    </div>
+                                                @endif
                                             </div>
                                             
                                             <!-- Review Content -->
                                             <div class="flex-1 min-w-0">
                                                 <div class="flex items-center justify-between mb-1">
                                                     <h5 class="text-sm font-medium text-gray-900">
-                                                        {{ $review->penyewa->name ?? 'User' }}
+                                                        {{ $review->penyewa->username ?? 'User' }}
                                                     </h5>
-                                                    <div class="flex items-center space-x-2">
+                                                    <div class="flex items-center space-x-3">
                                                         <span class="text-xs text-gray-500">
-                                                            {{ $review->tanggal_review->diffForHumans() }}
+                                                            {{ $review->created_at->diffForHumans() }}
                                                         </span>
                                                         <!-- Action Buttons -->
-                                                        <div class="flex space-x-1">
+                                                        <div class="flex space-x-2">
                                                             <button onclick="showReplyModal({{ $review->id_review }})" 
-                                                                    class="text-blue-600 hover:text-blue-700 text-xs font-medium">
+                                                                    class="text-blue-600 hover:text-blue-700 text-xs font-medium flex items-center">
+                                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                                                                </svg>
                                                                 Balas
                                                             </button>
-                                                            <form action="{{ route('pemilik.review.destroy', $review->id_review) }}" 
+                                                            <form action="{{ route('pemilik.reviews.destroy', $review->id_review) }}" 
                                                                   method="POST" 
                                                                   class="inline">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" 
                                                                         onclick="return confirm('Yakin hapus review ini?')"
-                                                                        class="text-red-600 hover:text-red-700 text-xs font-medium">
+                                                                        class="text-red-600 hover:text-red-700 text-xs font-medium flex items-center">
+                                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                                    </svg>
                                                                     Hapus
                                                                 </button>
                                                             </form>
@@ -468,51 +463,6 @@
 
                 <!-- Actions & Quick Info -->
                 <div class="space-y-6">
-                    <!-- Quick Actions -->
-                    <div class="bg-white overflow-hidden shadow-lg sm:rounded-lg">
-                        <div class="px-6 py-4 border-b border-gray-200">
-                            <h3 class="text-lg font-medium text-gray-900">Quick Actions</h3>
-                        </div>
-                        <div class="p-6 space-y-3">
-                            <a href="{{ route('pemilik.properti.edit', $properti->id_properti) }}" 
-                               class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded inline-flex items-center justify-center">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
-                                Edit Properti
-                            </a>
-
-                            @if($properti->status == 'tersedia')
-                            <button class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded inline-flex items-center justify-center">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                                </svg>
-                                Promosikan
-                            </button>
-                            @endif
-
-                            <button class="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded inline-flex items-center justify-center">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                Lihat Laporan
-                            </button>
-
-                            <form action="{{ route('pemilik.properti.destroy', $properti->id_properti) }}" method="POST" class="w-full">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        onclick="return confirm('Yakin ingin hapus properti {{ $properti->nama }}?')"
-                                        class="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded inline-flex items-center justify-center">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                    </svg>
-                                    Hapus Properti
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
                     <!-- Property Info -->
                     <div class="bg-white overflow-hidden shadow-lg sm:rounded-lg">
                         <div class="px-6 py-4 border-b border-gray-200">
@@ -551,26 +501,33 @@
     <div id="replyModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div class="mt-3">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Balas Review</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Balas Review</h3>
+                    <button onclick="hideReplyModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
                 <form id="replyForm" method="POST">
                     @csrf
                     <div class="mb-4">
                         <label for="reply" class="block text-sm font-medium text-gray-700 mb-2">Balasan Anda</label>
                         <textarea id="reply" 
                                   name="reply" 
-                                  rows="3" 
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                  rows="4" 
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                   placeholder="Tulis balasan untuk review ini..."
                                   required></textarea>
                     </div>
                     <div class="flex justify-end space-x-3">
                         <button type="button" 
                                 onclick="hideReplyModal()"
-                                class="px-4 py-2 text-gray-500 bg-gray-200 rounded-md hover:bg-gray-300">
+                                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 font-medium">
                             Batal
                         </button>
                         <button type="submit"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium">
                             Kirim Balasan
                         </button>
                     </div>
@@ -580,47 +537,9 @@
     </div>
 
     <script>
-    // Set primary image
-    function setPrimaryImage(propertiId, imageId) {
-        fetch(`/pemilik/properti/${propertiId}/images/${imageId}/primary`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-
-    // Delete image
-    function deleteImage(propertiId, imageId) {
-        if (confirm('Apakah Anda yakin ingin menghapus foto ini?')) {
-            fetch(`/pemilik/properti/${propertiId}/images/${imageId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-    }
-
     function showReplyModal(reviewId) {
         document.getElementById('replyModal').classList.remove('hidden');
-        document.getElementById('replyForm').action = `/pemilik/review/${reviewId}/reply`;
+        document.getElementById('replyForm').action = `/pemilik/reviews/${reviewId}/reply`;
         document.getElementById('reply').focus();
     }
 

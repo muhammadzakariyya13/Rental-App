@@ -13,14 +13,72 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
         @csrf
         @method('patch')
 
+        <!-- Profile Photo Section -->
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+            <x-input-label for="profile_photo" :value="__('Profile Photo')" />
+            <div class="mt-2 flex items-center gap-4">
+                @if(Auth::user()->profile_photo)
+                    <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" 
+                         alt="Profile Photo" 
+                         class="w-20 h-20 rounded-full object-cover border-2 border-gray-300"
+                         id="preview-image">
+                @else
+                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold"
+                         id="preview-initial">
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    </div>
+                    <img src="" 
+                         alt="Profile Photo" 
+                         class="w-20 h-20 rounded-full object-cover border-2 border-gray-300 hidden"
+                         id="preview-image">
+                @endif
+                <div class="flex-1">
+                    <input type="file" 
+                           id="profile_photo" 
+                           name="profile_photo" 
+                           accept="image/*"
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                           onchange="previewPhoto(event)">
+                    <p class="mt-1 text-xs text-gray-500">JPG, PNG, atau GIF (Max. 2MB)</p>
+                    @if(Auth::user()->profile_photo)
+                        <label class="mt-2 flex items-center">
+                            <input type="checkbox" name="remove_photo" value="1" class="rounded border-gray-300 text-red-600 shadow-sm focus:ring-red-500">
+                            <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">Hapus foto profil</span>
+                        </label>
+                    @endif
+                </div>
+            </div>
+            <x-input-error class="mt-2" :messages="$errors->get('profile_photo')" />
+        </div>
+
+        <script>
+        function previewPhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewImage = document.getElementById('preview-image');
+                    const previewInitial = document.getElementById('preview-initial');
+                    
+                    previewImage.src = e.target.result;
+                    previewImage.classList.remove('hidden');
+                    if (previewInitial) {
+                        previewInitial.classList.add('hidden');
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+        </script>
+
+        <div>
+            <x-input-label for="username" :value="__('Username')" />
+            <x-text-input id="username" name="username" type="text" class="mt-1 block w-full" :value="old('username', $user->username)" required autofocus autocomplete="username" />
+            <x-input-error class="mt-2" :messages="$errors->get('username')" />
         </div>
 
         <div>

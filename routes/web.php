@@ -13,19 +13,25 @@ use App\Http\Controllers\Pemilik\PropertiController;
 use App\Http\Controllers\Pemilik\PemesananController;
 use App\Http\Controllers\Pemilik\ReviewController;
 use App\Http\Controllers\Pemilik\BookingController;
+use App\Http\Controllers\Penyewa\DashboardController as PenyewaDashboardController;
 use App\Http\Controllers\Penyewa\BrowseController;
 use App\Http\Controllers\Penyewa\PemesananController as PenyewaPemesananController;
+use App\Http\Controllers\Penyewa\KontrakController;
 use App\Http\Controllers\Penyewa\ReviewController as PenyewaReviewController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-// Ganti route ini untuk redirect ke login jika belum auth
+// Landing page untuk guest, redirect ke dashboard jika sudah login
 Route::get('/', function () {
     if (Auth::check()) {
-        return redirect('/');
+        return redirect('/dashboard');
     }
-    return redirect('/login');
-});
+    // Ambil semua properti untuk ditampilkan
+    $properti = \App\Models\Properti::with('images')
+        ->latest()
+        ->get();
+    return view('landing', compact('properti'));
+})->name('landing');
 
 // Default dashboard route that redirects to appropriate role-specific dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -37,7 +43,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::resource('users', AdminUserController::class);
     Route::resource('properti', AdminPropertiController::class);
     Route::resource('pemesanan', AdminPemesananController::class)->only(['index', 'show', 'destroy']);
-    Route::resource('reviews', AdminReviewController::class)->only(['index', 'destroy']);
+    Route::resource('reviews', AdminReviewController::class)->only(['index', 'show', 'destroy']);
     Route::get('/laporan', [AdminLaporanController::class, 'index'])->name('laporan');
 });
 
@@ -62,17 +68,23 @@ Route::middleware(['auth'])->prefix('pemilik')->name('pemilik.')->group(function
     // REVIEW ROUTES
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::post('/reviews/{id}/reply', [ReviewController::class, 'reply'])->name('reviews.reply');
-    Route::post('/reviews/{id}/approval', [ReviewController::class, 'updateApproval'])->name('reviews.approval');
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
     Route::post('/reviews/bulk-action', [ReviewController::class, 'bulkAction'])->name('reviews.bulkAction');
         
     // Booking routes untuk pemilik
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
-    Route::get('/bookings/{id}', [BookingController::class, 'show'])->name('bookings.show');
-    Route::post('/bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
-    Route::post('/bookings/bulk-update', [BookingController::class, 'bulkUpdateStatus'])->name('bookings.bulkUpdate');
     Route::get('/bookings/export', [BookingController::class, 'exportExcel'])->name('bookings.export');
     Route::get('/bookings/stats', [BookingController::class, 'getStats'])->name('bookings.stats');
+    Route::get('/bookings/{id}', [BookingController::class, 'show'])->name('bookings.show');
+    Route::post('/bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+    Route::delete('/bookings/{id}', [BookingController::class, 'destroy'])->name('bookings.destroy');
+    Route::post('/bookings/bulk-update', [BookingController::class, 'bulkUpdateStatus'])->name('bookings.bulkUpdate');
+    
+    // Kontrak routes untuk pemilik
+    Route::get('/kontrak', [\App\Http\Controllers\Pemilik\KontrakController::class, 'index'])->name('kontrak.index');
+    Route::get('/kontrak/{id}', [\App\Http\Controllers\Pemilik\KontrakController::class, 'show'])->name('kontrak.show');
+    Route::get('/kontrak/{id}/download', [\App\Http\Controllers\Pemilik\KontrakController::class, 'download'])->name('kontrak.download');
+    Route::post('/kontrak/{id}/toggle-permission', [\App\Http\Controllers\Pemilik\KontrakController::class, 'togglePermission'])->name('kontrak.toggle-permission');
     
     // Pemesanan routes
     Route::get('/pemesanan', [PemesananController::class, 'index'])->name('pemesanan');
@@ -83,13 +95,29 @@ Route::middleware(['auth'])->prefix('pemilik')->name('pemilik.')->group(function
 
 // Penyewa (Tenant) routes
 Route::middleware(['auth'])->prefix('penyewa')->name('penyewa.')->group(function () {
+    Route::get('/', [PenyewaDashboardController::class, 'index'])->name('dashboard');
     Route::get('/browse', [BrowseController::class, 'index'])->name('browse');
     Route::get('/browse/{id}', [BrowseController::class, 'show'])->name('browse.show');
     
-    Route::get('/pemesanan', [PenyewaPemesananController::class, 'index'])->name('pemesanan');
+    // Pemesanan routes
+    Route::get('/pemesanan', [PenyewaPemesananController::class, 'index'])->name('pemesanan.index');
+    Route::get('/pemesanan/create/{id_properti}', [PenyewaPemesananController::class, 'create'])->name('pemesanan.create');
+    Route::post('/pemesanan/store', [PenyewaPemesananController::class, 'store'])->name('pemesanan.store');
+    Route::get('/pemesanan/payment/{id_pemesanan}', [PenyewaPemesananController::class, 'payment'])->name('pemesanan.payment');
+    Route::get('/pemesanan/success/{id_pemesanan}', [PenyewaPemesananController::class, 'success'])->name('pemesanan.success');
+    Route::delete('/pemesanan/{id}/cancel', [PenyewaPemesananController::class, 'cancel'])->name('pemesanan.cancel');
     Route::get('/pemesanan/{id}', [PenyewaPemesananController::class, 'show'])->name('pemesanan.show');
     
+    // Kontrak routes
+    Route::get('/kontrak', [KontrakController::class, 'index'])->name('kontrak.index');
+    Route::get('/kontrak/{id}', [KontrakController::class, 'show'])->name('kontrak.show');
+    Route::get('/kontrak/{id}/download', [KontrakController::class, 'download'])->name('kontrak.download');
+    
+    // Riwayat Pembayaran routes
+    Route::get('/riwayat-pembayaran', [\App\Http\Controllers\Penyewa\RiwayatPembayaranController::class, 'index'])->name('riwayat-pembayaran.index');
+    
     Route::get('/reviews', [PenyewaReviewController::class, 'index'])->name('reviews');
+    Route::get('/pemesanan/{id}/review', [PenyewaReviewController::class, 'create'])->name('review.create');
     Route::post('/reviews', [PenyewaReviewController::class, 'store'])->name('reviews.store');
     Route::get('/reviews/{id}/edit', [PenyewaReviewController::class, 'edit'])->name('reviews.edit');
     Route::put('/reviews/{id}', [PenyewaReviewController::class, 'update'])->name('reviews.update');
@@ -120,5 +148,8 @@ Route::get('/test-login-penyewa', function() {
     auth()->login($user);
     return redirect('/dashboard')->with('success', 'Login sebagai: ' . $user->username);
 });
+
+// Midtrans callback (no auth required - this is called by Midtrans server)
+Route::post('/midtrans/callback', [PenyewaPemesananController::class, 'callback'])->name('midtrans.callback');
 
 require __DIR__.'/auth.php';

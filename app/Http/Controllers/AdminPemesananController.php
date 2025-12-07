@@ -32,14 +32,23 @@ class AdminPemesananController extends Controller
         return $status == 'sudah_bayar' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $pemesanan = Pemesanan::with(['properti', 'penyewa'])->paginate(15);
+        $query = Pemesanan::with(['properti', 'penyewa']);
+
+        // Filter by status if provided
+        if ($request->has('status') && $request->status !== 'semua') {
+            $query->where('status_pembayaran', $request->status);
+        }
+
+        $pemesanan = $query->latest('id_pemesanan')->paginate(15);
+        
         return view('admin.pemesanan.index', compact('pemesanan'));
     }
 
     public function show(Pemesanan $pemesanan): View
     {
+        $pemesanan->load(['penyewa', 'properti', 'kontrak']);
         return view('admin.pemesanan.show', compact('pemesanan'));
     }
 

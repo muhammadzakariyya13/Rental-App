@@ -30,7 +30,7 @@
             @endif
 
             <!-- Stats Dashboard -->
-            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <!-- Total Reviews -->
                 <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow-lg transform hover:scale-105 transition duration-300">
                     <div class="flex items-center justify-between">
@@ -72,28 +72,6 @@
                             <p class="text-2xl font-bold">{{ $stats['reviews_bulan_ini'] }}</p>
                         </div>
                         <div class="text-2xl">📊</div>
-                    </div>
-                </div>
-
-                <!-- Approved -->
-                <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-lg shadow-lg transform hover:scale-105 transition duration-300">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-purple-100 text-xs uppercase tracking-wide">Approved</p>
-                            <p class="text-2xl font-bold">{{ $stats['approved_reviews'] }}</p>
-                        </div>
-                        <div class="text-2xl">✅</div>
-                    </div>
-                </div>
-
-                <!-- Not Approved -->
-                <div class="bg-gradient-to-br from-red-500 to-red-600 text-white p-4 rounded-lg shadow-lg transform hover:scale-105 transition duration-300">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-red-100 text-xs uppercase tracking-wide">Rejected</p>
-                            <p class="text-2xl font-bold">{{ $stats['not_approved_reviews'] }}</p>
-                        </div>
-                        <div class="text-2xl">❌</div>
                     </div>
                 </div>
             </div>
@@ -153,8 +131,6 @@
                             <option value="">All Status</option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>🔴 Need Reply</option>
                             <option value="replied" {{ request('status') == 'replied' ? 'selected' : '' }}>✅ Replied</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>🏆 Approved</option>
-                            <option value="not_approved" {{ request('status') == 'not_approved' ? 'selected' : '' }}>❌ Rejected</option>
                         </select>
                     </div>
 
@@ -196,17 +172,8 @@
                         </div>
                         
                         <div class="flex space-x-2">
-                            <button onclick="bulkAction('reply')" class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition">
-                                💬 Bulk Reply
-                            </button>
-                            <button onclick="bulkAction('approve')" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition">
-                                ✅ Approve
-                            </button>
-                            <button onclick="bulkAction('disapprove')" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition">
-                                ❌ Reject
-                            </button>
-                            <button onclick="bulkAction('delete')" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 transition">
-                                🗑️ Delete
+                            <button onclick="bulkAction('delete')" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition">
+                                🗑️ Delete Selected
                             </button>
                         </div>
                     </div>
@@ -228,35 +195,63 @@
 
                                 <!-- Avatar -->
                                 <div class="flex-shrink-0">
-                                    <div class="h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                                        <span class="text-white font-bold">
-                                            {{ strtoupper(substr($review->penyewa->username ?? 'U', 0, 1)) }}
-                                        </span>
-                                    </div>
+                                    @if($review->penyewa && $review->penyewa->profile_photo)
+                                        @php
+                                            $profilePhoto = $review->penyewa->profile_photo;
+                                            // Cek apakah sudah base64 atau path file
+                                            if (str_starts_with($profilePhoto, 'data:image')) {
+                                                $profileSrc = $profilePhoto;
+                                            } elseif (str_contains($profilePhoto, 'base64,')) {
+                                                $profileSrc = 'data:image/jpeg;base64,' . $profilePhoto;
+                                            } else {
+                                                // Path file, gunakan storage URL
+                                                $profileSrc = asset('storage/' . $profilePhoto);
+                                            }
+                                        @endphp
+                                        <img src="{{ $profileSrc }}" alt="Profile" class="h-12 w-12 rounded-full object-cover">
+                                    @else
+                                        <div class="h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                                            <span class="text-white font-bold">
+                                                {{ strtoupper(substr($review->penyewa->username ?? 'U', 0, 1)) }}
+                                            </span>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <!-- Content -->
                                 <div class="flex-1">
                                     <!-- Header -->
                                     <div class="flex items-center justify-between mb-3">
-                                        <div>
-                                            <h4 class="text-lg font-semibold text-gray-900">{{ $review->penyewa->username ?? 'Anonymous' }}</h4>
-                                            <p class="text-sm text-gray-600">
-                                                🏠 {{ $review->properti->nama ?? 'Property' }} • 
-                                                📅 {{ $review->tanggal_review->format('d M Y') }}
-                                            </p>
-                                        </div>
-                                        <div class="flex items-center space-x-2">
-                                            <div class="text-yellow-500 text-lg">
-                                                {{ str_repeat('⭐', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}
-                                            </div>
-                                            <div class="flex space-x-1">
-                                                @if($review->is_approved)
-                                                    <span class="text-green-600 text-sm">✅</span>
+                                        <div class="flex items-center space-x-3">
+                                            <!-- Property Image -->
+                                            <div class="flex-shrink-0">
+                                                @if($review->properti && $review->properti->gambar)
+                                                    @php
+                                                        $propertiImage = $review->properti->gambar;
+                                                        if (!str_starts_with($propertiImage, 'data:image')) {
+                                                            $propertiImage = 'data:image/jpeg;base64,' . $propertiImage;
+                                                        }
+                                                    @endphp
+                                                    <img src="{{ $propertiImage }}" alt="{{ $review->properti->nama }}" class="h-16 w-20 object-cover rounded">
                                                 @else
-                                                    <span class="text-red-600 text-sm">❌</span>
+                                                    <div class="h-16 w-20 bg-gray-200 rounded flex items-center justify-center">
+                                                        <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                                        </svg>
+                                                    </div>
                                                 @endif
                                             </div>
+                                            
+                                            <div>
+                                                <h4 class="text-lg font-semibold text-gray-900">{{ $review->penyewa->username ?? 'Anonymous' }}</h4>
+                                                <p class="text-sm text-gray-600">
+                                                    🏠 {{ $review->properti->nama ?? 'Property' }} • 
+                                                    📅 {{ $review->tanggal_review->format('d M Y') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="text-yellow-500 text-lg">
+                                            {{ str_repeat('⭐', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}
                                         </div>
                                     </div>
 
@@ -293,27 +288,25 @@
                                     <!-- Action Buttons -->
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                            <span>⏰ {{ $review->time_ago }}</span>
-                                            <span class="px-2 py-1 rounded text-xs {{ $review->is_approved ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                {{ $review->is_approved_badge }}
-                                            </span>
+                                            <span>⏰ {{ $review->created_at->diffForHumans() }}</span>
+                                            @if($review->has_reply)
+                                                <span class="px-2 py-1 rounded text-xs bg-green-100 text-green-800">
+                                                    💬 Replied
+                                                </span>
+                                            @else
+                                                <span class="px-2 py-1 rounded text-xs bg-yellow-100 text-yellow-800">
+                                                    ⏳ Pending Reply
+                                                </span>
+                                            @endif
                                         </div>
                                         
                                         <div class="flex space-x-2">
-                                            <form action="{{ route('pemilik.reviews.approval', $review->id_review) }}" method="POST" class="inline">
-                                                @csrf
-                                                <input type="hidden" name="is_approved" value="{{ $review->is_approved ? 0 : 1 }}">
-                                                <button type="submit" class="text-blue-600 hover:text-blue-800 text-sm">
-                                                    {{ $review->is_approved ? '❌ Reject' : '✅ Approve' }}
-                                                </button>
-                                            </form>
-                                            
                                             <form action="{{ route('pemilik.reviews.destroy', $review->id_review) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-800 text-sm" 
                                                         onclick="return confirm('🗑️ Delete this review?')">
-                                                    Delete
+                                                    🗑️ Delete
                                                 </button>
                                             </form>
                                         </div>

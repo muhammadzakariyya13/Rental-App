@@ -26,7 +26,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium mb-2">Harga Per Hari</label>
+                            <label class="block text-sm font-medium mb-2">Harga Per Bulan</label>
                             <p class="text-lg font-bold text-green-600">Rp {{ number_format($properti->harga_perhari, 0, ',', '.') }}</p>
                         </div>
 

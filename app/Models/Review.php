@@ -15,6 +15,7 @@ class Review extends Model
     protected $fillable = [
         'id_properti',
         'id_penyewa', 
+        'id_pemesanan',
         'rating',
         'review',
         'is_approved',

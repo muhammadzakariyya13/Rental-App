@@ -24,7 +24,7 @@
                                     <th class="px-6 py-3">Penyewa</th>
                                     <th class="px-6 py-3">Rating</th>
                                     <th class="px-6 py-3">Review</th>
-                                    <th class="px-6 py-3">Approved</th>
+                                    <th class="px-6 py-3">Tanggal</th>
                                     <th class="px-6 py-3">Action</th>
                                 </tr>
                             </thead>
@@ -32,36 +32,56 @@
                                 @forelse($reviews as $review)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <td class="px-6 py-4">{{ $review->id_review }}</td>
-                                        <td class="px-6 py-4">{{ $review->properti->nama_properti ?? '-' }}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-3">
+                                                @if($review->properti && $review->properti->gambar)
+                                                    <img src="data:image/jpeg;base64,{{ $review->properti->gambar }}" 
+                                                         alt="{{ $review->properti->nama ?? 'Properti' }}" 
+                                                         class="w-16 h-16 object-cover rounded"
+                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                    <div class="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded items-center justify-center" style="display:none;">
+                                                        <span class="text-gray-500 text-xs">No Img</span>
+                                                    </div>
+                                                @else
+                                                    <div class="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded flex items-center justify-center">
+                                                        <span class="text-gray-500 text-xs">No Img</span>
+                                                    </div>
+                                                @endif
+                                                <div>
+                                                    <p class="font-medium">{{ $review->properti->nama ?? '-' }}</p>
+                                                    @if($review->properti && $review->properti->alamat)
+                                                        <p class="text-xs text-gray-500">{{ Str::limit($review->properti->alamat, 30) }}</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td class="px-6 py-4">{{ $review->penyewa->username ?? '-' }}</td>
                                         <td class="px-6 py-4">
-                                            <span class="text-yellow-500">
-                                                @for($i = 0; $i < $review->rating; $i++)
-                                                    <i class="fas fa-star"></i>
-                                                @endfor
-                                            </span>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-yellow-400 text-lg">
+                                                    @for($i = 0; $i < $review->rating; $i++)
+                                                        ⭐
+                                                    @endfor
+                                                </span>
+                                                <span class="text-gray-600 dark:text-gray-400 text-sm ml-1">({{ $review->rating }})</span>
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4 max-w-xs truncate">{{ substr($review->review, 0, 50) }}...</td>
+                                        <td class="px-6 py-4">{{ $review->created_at->format('d/m/Y') }}</td>
                                         <td class="px-6 py-4">
-                                            <span class="px-2 py-1 rounded text-xs font-medium 
-                                                {{ $review->is_approved ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                {{ $review->is_approved ? 'Approved' : 'Pending' }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 space-x-2">
-                                            <a href="{{ route('admin.reviews.show', $review->id_review) }}" class="text-blue-500 hover:text-blue-700">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ route('admin.reviews.edit', $review->id_review) }}" class="text-yellow-500 hover:text-yellow-700">
-                                                <i class="fas fa-check-circle"></i>
-                                            </a>
-                                            <form action="{{ route('admin.reviews.destroy', $review->id_review) }}" method="POST" class="inline" onclick="return confirm('Yakin ingin menghapus?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-500 hover:text-red-700">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <div class="flex gap-2">
+                                                <a href="{{ route('admin.reviews.show', $review->id_review) }}" 
+                                                   class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                                                    Detail
+                                                </a>
+                                                <form action="{{ route('admin.reviews.destroy', $review->id_review) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus review ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+                                                        Hapus
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty

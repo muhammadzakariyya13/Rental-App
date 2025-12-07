@@ -33,12 +33,6 @@ class ReviewController extends Controller
                 case 'pending':
                     $query->whereNull('pemilik_reply');
                     break;
-                case 'approved':
-                    $query->where('is_approved', true);
-                    break;
-                case 'not_approved':
-                    $query->where('is_approved', false);
-                    break;
             }
         }
 
@@ -62,8 +56,7 @@ class ReviewController extends Controller
             'average_rating' => round((clone $baseQuery)->avg('rating') ?? 0, 1),
             'pending_replies' => (clone $baseQuery)->whereNull('pemilik_reply')->count(),
             'reviews_bulan_ini' => (clone $baseQuery)->whereMonth('tanggal_review', now()->month)->count(),
-            'approved_reviews' => (clone $baseQuery)->where('is_approved', true)->count(),
-            'not_approved_reviews' => (clone $baseQuery)->where('is_approved', false)->count()
+            'replied_reviews' => (clone $baseQuery)->whereNotNull('pemilik_reply')->count()
         ];
 
         // Rating distribution
@@ -163,8 +156,7 @@ class ReviewController extends Controller
     {
         $request->validate([
             'review_ids' => 'required|array|min:1',
-            'action' => 'required|in:reply,approve,disapprove,delete',
-            'bulk_reply_text' => 'required_if:action,reply|string|max:1000'
+            'action' => 'required|in:delete'
         ]);
 
         $reviewIds = $request->review_ids;
@@ -183,47 +175,17 @@ class ReviewController extends Controller
 
         $updated = 0;
 
-        switch ($action) {
-            case 'reply':
-                $updated = Review::whereIn('id_review', $reviewIds)
-                    ->whereNull('pemilik_reply')
-                    ->whereHas('properti', function($query) {
-                        $query->where('pemilik_id', Auth::id());
-                    })
-                    ->update([
-                        'pemilik_reply' => $request->bulk_reply_text,
-                        'reply_date' => now()
-                    ]);
-                break;
-
-            case 'approve':
-                $updated = Review::whereIn('id_review', $reviewIds)
-                    ->whereHas('properti', function($query) {
-                        $query->where('pemilik_id', Auth::id());
-                    })
-                    ->update(['is_approved' => true]);
-                break;
-
-            case 'disapprove':
-                $updated = Review::whereIn('id_review', $reviewIds)
-                    ->whereHas('properti', function($query) {
-                        $query->where('pemilik_id', Auth::id());
-                    })
-                    ->update(['is_approved' => false]);
-                break;
-
-            case 'delete':
-                $updated = Review::whereIn('id_review', $reviewIds)
-                    ->whereHas('properti', function($query) {
-                        $query->where('pemilik_id', Auth::id());
-                    })
-                    ->delete();
-                break;
+        if ($action === 'delete') {
+            $updated = Review::whereIn('id_review', $reviewIds)
+                ->whereHas('properti', function($query) {
+                    $query->where('pemilik_id', Auth::id());
+                })
+                ->delete();
         }
 
         return response()->json([
             'success' => true,
-            'message' => "✅ Berhasil memproses {$updated} review"
+            'message' => "✅ Berhasil menghapus {$updated} review"
         ]);
     }
 }

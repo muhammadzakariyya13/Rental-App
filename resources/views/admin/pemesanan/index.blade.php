@@ -15,17 +15,32 @@
                         </div>
                     @endif
 
+                    <!-- Filter Status -->
+                    <div class="mb-4 flex gap-2">
+                        <a href="{{ route('admin.pemesanan.index') }}" 
+                           class="px-4 py-2 rounded {{ !request('status') || request('status') == 'semua' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
+                            Semua
+                        </a>
+                        <a href="{{ route('admin.pemesanan.index', ['status' => 'pending']) }}" 
+                           class="px-4 py-2 rounded {{ request('status') == 'pending' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
+                            Pending
+                        </a>
+                        <a href="{{ route('admin.pemesanan.index', ['status' => 'sudah_bayar']) }}" 
+                           class="px-4 py-2 rounded {{ request('status') == 'sudah_bayar' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
+                            Lunas
+                        </a>
+                    </div>
+
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm text-left">
                             <thead class="bg-gray-100 dark:bg-gray-700">
                                 <tr>
                                     <th class="px-6 py-3">ID</th>
-                                    <th class="px-6 py-3">Properti</th>
                                     <th class="px-6 py-3">Penyewa</th>
-                                    <th class="px-6 py-3">Tanggal Pemesanan</th>
-                                    <th class="px-6 py-3">Lama Sewa</th>
+                                    <th class="px-6 py-3">Properti</th>
+                                    <th class="px-6 py-3">Tanggal</th>
+                                    <th class="px-6 py-3">Total Harga</th>
                                     <th class="px-6 py-3">Status</th>
-                                    <th class="px-6 py-3">Pembayaran</th>
                                     <th class="px-6 py-3">Action</th>
                                 </tr>
                             </thead>
@@ -33,44 +48,65 @@
                                 @forelse($pemesanan as $pesan)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                                         <td class="px-6 py-4">{{ $pesan->id_pemesanan }}</td>
-                                        <td class="px-6 py-4">{{ $pesan->properti->nama ?? '-' }}</td>
-                                        <td class="px-6 py-4">{{ $pesan->penyewa->username ?? '-' }}</td>
-                                        <td class="px-6 py-4">{{ $pesan->tanggal_pemesanan->format('d/m/Y') }}</td>
-                                        <td class="px-6 py-4">{{ $pesan->lama_sewa }} hari</td>
                                         <td class="px-6 py-4">
-                                            <span class="px-2 py-1 rounded text-xs font-medium 
-                                                {{ $pesan->status_pemesanan === 'diterima' ? 'bg-green-100 text-green-800' : '' }}
-                                                {{ $pesan->status_pemesanan === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                                {{ $pesan->status_pemesanan === 'ditolak' ? 'bg-red-100 text-red-800' : '' }}
-                                                {{ !in_array($pesan->status_pemesanan, ['diterima', 'pending', 'ditolak']) ? 'bg-blue-100 text-blue-800' : '' }}">
-                                                {{ ucfirst($pesan->status_pemesanan) }}
-                                            </span>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                {{ $pesan->penyewa->name ?? '-' }}
+                                            </div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                {{ $pesan->penyewa->email ?? '-' }}
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="flex-shrink-0">
+                                                    @if($pesan->properti && $pesan->properti->gambar)
+                                                        <img src="data:image/jpeg;base64,{{ $pesan->properti->gambar }}" 
+                                                             alt="{{ $pesan->properti->nama }}"
+                                                             class="h-12 w-12 rounded object-cover">
+                                                    @else
+                                                        <div class="h-12 w-12 rounded bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
+                                                            No Img
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div>
+                                                    <div class="text-sm font-medium">{{ $pesan->properti->nama ?? '-' }}</div>
+                                                    <div class="text-xs text-gray-500">{{ Str::limit($pesan->properti->alamat ?? '', 25) }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm">{{ $pesan->tanggal_pemesanan->format('d/m/Y') }}</div>
+                                            <div class="text-xs text-gray-500">{{ $pesan->lama_sewa }} hari</div>
+                                        </td>
+                                        <td class="px-6 py-4">Rp {{ number_format($pesan->total_harga, 0, ',', '.') }}</td>
+                                        <td class="px-6 py-4">
                                             <span class="px-2 py-1 rounded text-xs font-medium 
-                                                {{ $pesan->status_pembayaran == 'sudah_bayar' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                {{ ucfirst(str_replace('_', ' ', $pesan->status_pembayaran)) }}
+                                                {{ $pesan->status_pembayaran == 'sudah_bayar' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                                {{ $pesan->status_pembayaran == 'sudah_bayar' ? 'Lunas' : 'Pending' }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 space-x-2">
-                                            <a href="{{ route('admin.pemesanan.show', $pesan->id_pemesanan) }}" class="text-blue-500 hover:text-blue-700">
-                                                <i class="fas fa-eye"></i>
+                                            <a href="{{ route('admin.pemesanan.show', $pesan->id_pemesanan) }}" 
+                                               class="inline-block px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+                                                Detail
                                             </a>
-                                            <a href="{{ route('admin.pemesanan.edit', $pesan->id_pemesanan) }}" class="text-yellow-500 hover:text-yellow-700">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form action="{{ route('admin.pemesanan.destroy', $pesan->id_pemesanan) }}" method="POST" class="inline" onclick="return confirm('Yakin ingin menghapus?')">
+                                            <form action="{{ route('admin.pemesanan.destroy', $pesan->id_pemesanan) }}" 
+                                                  method="POST" 
+                                                  class="inline" 
+                                                  onsubmit="return confirm('Yakin ingin menghapus pemesanan ini?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-500 hover:text-red-700">
-                                                    <i class="fas fa-trash"></i>
+                                                <button type="submit" 
+                                                        class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
+                                                    Hapus
                                                 </button>
                                             </form>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">Tidak ada data pemesanan</td>
+                                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">Tidak ada data pemesanan</td>
                                     </tr>
                                 @endforelse
                             </tbody>

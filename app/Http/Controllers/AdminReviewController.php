@@ -11,8 +11,14 @@ class AdminReviewController extends Controller
 {
     public function index(): View
     {
-        $reviews = Review::with(['properti', 'penyewa'])->paginate(15);
+        $reviews = Review::with(['properti.images', 'penyewa'])->paginate(15);
         return view('admin.reviews.index', compact('reviews'));
+    }
+
+    public function show(Review $review): View
+    {
+        $review->load(['properti', 'penyewa']);
+        return view('admin.reviews.show', compact('review'));
     }
 
     public function destroy(Review $review): RedirectResponse

@@ -16,8 +16,17 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        // Check role and return appropriate view
+        $user = $request->user();
+        
+        if ($user->hasRole('penyewa')) {
+            return view('penyewa.profile.edit', [
+                'user' => $user,
+            ]);
+        }
+        
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 
@@ -26,13 +35,37 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $user = $request->user();
+        
+        // Fill user data first (name, email, etc) - EXCEPT profile_photo
+        $validated = $request->validated();
+        unset($validated['profile_photo']); // Remove profile_photo from validated data
+        $user->fill($validated);
+        
+        // Handle profile photo removal
+        if ($request->input('remove_photo')) {
+            if ($user->profile_photo && \Storage::disk('public')->exists($user->profile_photo)) {
+                \Storage::disk('public')->delete($user->profile_photo);
+            }
+            $user->profile_photo = null;
+        }
+        // Handle profile photo upload
+        elseif ($request->hasFile('profile_photo')) {
+            // Delete old photo if exists
+            if ($user->profile_photo && \Storage::disk('public')->exists($user->profile_photo)) {
+                \Storage::disk('public')->delete($user->profile_photo);
+            }
+            
+            // Store new photo
+            $path = $request->file('profile_photo')->store('profile-photos', 'public');
+            $user->profile_photo = $path;
         }
 
-        $request->user()->save();
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

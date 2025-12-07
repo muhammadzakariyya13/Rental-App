@@ -22,6 +22,7 @@ class ReviewFactory extends Factory
             'komentar' => fake()->paragraph(),
             'rating' => fake()->numberBetween(1, 5),
             'tanggal' => fake()->dateTimeBetween('-1 year', 'now')->format('Y-m-d'),
+            'is_approved' => 1, // Auto-approve all reviews
         ];
     }
 }

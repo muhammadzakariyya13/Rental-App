@@ -34,7 +34,7 @@
                                     <th class="px-6 py-3">Kamar Tidur</th>
                                     <th class="px-6 py-3">Kamar Mandi</th>
                                     <th class="px-6 py-3">Luas Tanah (m²)</th>
-                                    <th class="px-6 py-3">Harga/Hari</th>
+                                    <th class="px-6 py-3">Harga/Bulan</th>
                                     <th class="px-6 py-3">Status</th>
                                     <th class="px-6 py-3">Pemilik</th>
                                     <th class="px-6 py-3">Action</th>

@@ -87,12 +87,9 @@ class PropertiController extends Controller
 
         $validated['pemilik_id'] = auth()->id();
         $validated['status'] = 'tersedia';
+        $validated['gambar'] = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2NjYyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+';
 
-        Properti::create($validated);
-
-        if ($request->hasFile('images')) {
-            $this->handleImageUpload($request, $properti);
-        }
+        $properti = Properti::create($validated);
 
         return redirect()->route('pemilik.properti')->with('success', 'Properti berhasil ditambahkan!');
     }
@@ -117,14 +114,18 @@ class PropertiController extends Controller
             'luas_tanah' => 'nullable|integer|min:0',
             'luas_bangunan' => 'nullable|integer|min:0',
             'deskripsi' => 'nullable|string',
-            'status' => 'required|in:tersedia,disewa,maintenance',
+            'status' => 'required|in:tersedia,disewa',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $properti->update($validated);
-
-        if ($request->hasFile('images')) {
-            $this->handleImageUpload($request, $properti);
+        // Handle image upload
+        if ($request->hasFile('gambar')) {
+            $image = $request->file('gambar');
+            $imageData = base64_encode(file_get_contents($image->getRealPath()));
+            $validated['gambar'] = $imageData;
         }
+
+        $properti->update($validated);
 
         return redirect()->route('pemilik.properti')->with('success', 'Properti berhasil diupdate!');
     }
@@ -155,75 +156,59 @@ class PropertiController extends Controller
 
     public function show($id)
     {
-        $properti = Properti::with(['images', 'reviews.penyewa'])
-            ->where('id_pemilik', Auth::id())
-            ->findOrFail($id);
+        $properti = Properti::where('id_properti', $id)
+            ->where('pemilik_id', auth()->id())
+            ->with('images')
+            ->firstOrFail();
 
-        // Get statistics
-        $totalPendapatan = $properti->totalPendapatan();
-        $jumlahPenyewa = $properti->jumlahPenyewa();
-        $ratingRataRata = $properti->averageRating();
-        $totalReviews = $properti->totalReviews();
-        $ratingDistribution = $properti->ratingDistribution();
-        $recentReviews = $properti->recentReviews();
+        // Total Pendapatan dari pemesanan yang sudah bayar
+        $totalPendapatan = \App\Models\Pemesanan::where('id_properti', $id)
+            ->where('status_pembayaran', 'sudah_bayar')
+            ->sum('total_harga');
+
+        // Jumlah Penyewa Unik
+        $jumlahPenyewa = \App\Models\Pemesanan::where('id_properti', $id)
+            ->distinct('id_akun')
+            ->count('id_akun');
+
+        // Rating dan Review
+        $reviews = \App\Models\Review::where('id_properti', $id)->get();
+        $totalReviews = $reviews->count();
+        $ratingRataRata = $totalReviews > 0 ? $reviews->avg('rating') : 0;
+
+        // Rating Distribution
+        $ratingDistribution = [];
+        for ($i = 5; $i >= 1; $i--) {
+            $count = $reviews->where('rating', $i)->count();
+            $percentage = $totalReviews > 0 ? ($count / $totalReviews) * 100 : 0;
+            $ratingDistribution[] = [
+                'rating' => $i,
+                'count' => $count,
+                'percentage' => round($percentage, 1)
+            ];
+        }
+
+        // Recent Reviews (10 terbaru dengan relasi penyewa)
+        $recentReviews = \App\Models\Review::where('id_properti', $id)
+            ->with('penyewa')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Hari Disewa (total lama_sewa dari semua pemesanan)
+        $hariDisewa = \App\Models\Pemesanan::where('id_properti', $id)
+            ->sum('lama_sewa');
 
         return view('pemilik.properti.show', compact(
             'properti',
             'totalPendapatan',
-            'jumlahPenyewa', 
+            'jumlahPenyewa',
             'ratingRataRata',
             'totalReviews',
             'ratingDistribution',
-            'recentReviews'
+            'recentReviews',
+            'hariDisewa'
         ));
     }
-    
-    private function handleImageUpload(Request $request, Properti $properti)
-    {
-        $images = $request->file('images');
-        $currentMaxOrder = $properti->images()->max('order_index') ?? -1;
 
-        foreach ($images as $index => $image) {
-            $imageName = Str::random(10) . '_' . time() . '.' . $image->getClientOriginalExtension();
-            $imagePath = $image->storeAs('properti/' . $properti->id_properti, $imageName, 'public');
-
-            $isFirst = $properti->images()->count() === 0 && $index === 0;
-
-            PropertiImage::create([
-                'id_properti' => $properti->id_properti,
-                'image_path' => $imagePath,
-                'image_name' => $imageName,
-                'is_primary' => $isFirst,
-                'order_index' => $currentMaxOrder + $index + 1
-            ]);
-        }
-    }
-
-    public function deleteImage($propertiId, $imageId)
-    {
-        $properti = Properti::where('pemilik_id', auth()->id())->findOrFail($propertiId);
-        $image = PropertiImage::where('id_properti', $properti->id_properti)->findOrFail($imageId);
-
-        if (Storage::exists($image->image_path)) {
-            Storage::delete($image->image_path);
-        }
-
-        $image->delete();
-
-        return response()->json(['success' => true]);
-    }
-
-    public function setPrimaryImage($propertiId, $imageId)
-    {
-        $properti = Properti::where('pemilik_id', auth()->id())->findOrFail($propertiId);
-        
-        PropertiImage::where('id_properti', $properti->id_properti)
-            ->update(['is_primary' => false]);
-
-        PropertiImage::where('id_properti', $properti->id_properti)
-            ->where('id', $imageId)
-            ->update(['is_primary' => true]);
-
-        return response()->json(['success' => true]);
-    }
 }

@@ -10,6 +10,7 @@ class BrowseController extends Controller
 {
     public function index(Request $request)
     {
+        // Show all properties (both tersedia and disewa)
         $query = Properti::query();
 
         // Filter berdasarkan tipe properti
@@ -17,25 +18,29 @@ class BrowseController extends Controller
             $query->where('tipe', $request->tipe);
         }
 
+        // Filter berdasarkan status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
         // Search berdasarkan nama atau lokasi
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('nama_properti', 'like', "%{$search}%")
-                  ->orWhere('nama', 'like', "%{$search}%")
+                $q->where('nama', 'like', "%{$search}%")
                   ->orWhere('alamat', 'like', "%{$search}%");
             });
         }
 
-        $properti = $query->paginate(12);
+        $properti = $query->latest()->paginate(12);
 
         return view('penyewa.browse.index', compact('properti'));
     }
 
     public function show($id)
     {
-        $properti = Properti::findOrFail($id);
-        $reviews = $properti->reviews()->where('is_approved', true)->get();
+        $properti = Properti::with('pemilik')->findOrFail($id);
+        $reviews = $properti->reviews()->with('penyewa')->latest()->get();
         
         return view('penyewa.browse.show', compact('properti', 'reviews'));
     }
