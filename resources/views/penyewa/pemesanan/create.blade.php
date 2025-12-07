@@ -144,7 +144,7 @@
                     {{-- Image --}}
                     <div class="mb-4 rounded-lg overflow-hidden">
                         @if($properti->gambar)
-                            <img src="data:image/jpeg;base64,{{ $properti->gambar }}" 
+                            <img src="{{ asset($properti->gambar) }}" 
                                  alt="{{ $properti->nama }}"
                                  class="w-full h-48 object-cover">
                         @else

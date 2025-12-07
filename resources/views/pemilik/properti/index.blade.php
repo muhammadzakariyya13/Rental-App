@@ -224,20 +224,27 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             @foreach($properti as $item)
                                 <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                                    <!-- Gambar Properti -->
+                                    <div class="relative h-48 bg-gray-200">
+                                        @if($item->gambar)
+                                            <img src="{{ asset($item->gambar) }}" alt="{{ $item->nama }}" class="w-full h-full object-cover">
+                                        @else
+                                            <div class="w-full h-full flex items-center justify-center bg-gray-300">
+                                                <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </div>
+                                        @endif
+                                        <!-- Status Badge -->
+                                        <span class="absolute top-2 right-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ 
+                                            $item->status == 'tersedia' ? 'bg-green-100 text-green-800' : 
+                                            ($item->status == 'disewa' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') 
+                                        }}">
+                                            {{ ucfirst($item->status) }}
+                                        </span>
+                                    </div>
+                                    
                                     <div class="p-4">
-                                        <div class="flex justify-between items-start mb-3">
-                                            <label class="inline-flex items-center">
-                                                <input type="checkbox" class="properti-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" value="{{ $item->id_properti }}">
-                                                <span class="ml-2 text-sm text-gray-600">#{{ $item->id_properti }}</span>
-                                            </label>
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ 
-                                                $item->status == 'tersedia' ? 'bg-green-100 text-green-800' : 
-                                                ($item->status == 'disewa' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') 
-                                            }}">
-                                                {{ ucfirst($item->status) }}
-                                            </span>
-                                        </div>
-                                        
                                         <h3 class="font-bold text-lg text-gray-900 mb-2">
                                             <a href="{{ route('pemilik.properti.show', $item->id_properti) }}" 
                                             class="hover:text-blue-600 transition-colors duration-200">

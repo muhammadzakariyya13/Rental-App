@@ -60,7 +60,7 @@
                                             <div class="flex items-center space-x-3">
                                                 <div class="flex-shrink-0">
                                                     @if($pesan->properti && $pesan->properti->gambar)
-                                                        <img src="data:image/jpeg;base64,{{ $pesan->properti->gambar }}" 
+                                                        <img src="{{ asset($pesan->properti->gambar) }}" 
                                                              alt="{{ $pesan->properti->nama }}"
                                                              class="h-12 w-12 rounded object-cover">
                                                     @else
@@ -91,17 +91,6 @@
                                                class="inline-block px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
                                                 Detail
                                             </a>
-                                            <form action="{{ route('admin.pemesanan.destroy', $pesan->id_pemesanan) }}" 
-                                                  method="POST" 
-                                                  class="inline" 
-                                                  onsubmit="return confirm('Yakin ingin menghapus pemesanan ini?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" 
-                                                        class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                                                    Hapus
-                                                </button>
-                                            </form>
                                         </td>
                                     </tr>
                                 @empty

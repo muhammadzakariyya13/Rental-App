@@ -26,9 +26,9 @@ Route::get('/', function () {
     if (Auth::check()) {
         return redirect('/dashboard');
     }
-    // Ambil semua properti untuk ditampilkan
-    $properti = \App\Models\Properti::with('images')
-        ->latest()
+    // Ambil hanya 3 properti terbaru untuk landing page
+    $properti = \App\Models\Properti::latest()
+        ->take(3)
         ->get();
     return view('landing', compact('properti'));
 })->name('landing');

@@ -19,7 +19,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {{-- Total Users --}}
                 <div
-                    class="relative overflow-hidden rounded-2xl bg-white/80 bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
+                    class="relative overflow-hidden rounded-2xl  bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
                     <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-100/50 dark:bg-blue-500/10 rounded-full"></div>
                     <div class="p-5 relative z-10 space-y-3">
                         <div class="flex items-center justify-between">
@@ -44,7 +44,7 @@
 
                 {{-- Total Properti --}}
                 <div
-                    class="relative overflow-hidden rounded-2xl bg-white/80 bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
+                    class="relative overflow-hidden rounded-2xl  bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
                     <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-100/50 dark:bg-emerald-500/10 rounded-full"></div>
                     <div class="p-5 relative z-10 space-y-3">
                         <div class="flex items-center justify-between">
@@ -69,7 +69,7 @@
 
                 {{-- Total Pemesanan --}}
                 <div
-                    class="relative overflow-hidden rounded-2xl bg-white/80 bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
+                    class="relative overflow-hidden rounded-2xl  bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
                     <div class="absolute -right-6 -top-6 w-24 h-24 bg-orange-100/50 dark:bg-orange-500/10 rounded-full"></div>
                     <div class="p-5 relative z-10 space-y-3">
                         <div class="flex items-center justify-between">
@@ -94,7 +94,7 @@
 
                 {{-- Total Review --}}
                 <div
-                    class="relative overflow-hidden rounded-2xl bg-white/80 bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
+                    class="relative overflow-hidden rounded-2xl  bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
                     <div class="absolute -right-6 -top-6 w-24 h-24 bg-amber-100/50 dark:bg-amber-500/10 rounded-full"></div>
                     <div class="p-5 relative z-10 space-y-3">
                         <div class="flex items-center justify-between">
@@ -122,7 +122,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {{-- Status Pemesanan --}}
                 <div
-                    class="rounded-2xl bg-white/80 bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30">
+                    class="rounded-2xl  bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30">
                     <div class="p-5 flex flex-col h-[330px]">
                         <div class="flex items-center justify-between mb-2">
                             <div>
@@ -142,7 +142,7 @@
 
                 {{-- Status Pembayaran --}}
                 <div
-                    class="rounded-2xl bg-white/80 bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30">
+                    class="rounded-2xl  bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30">
                     <div class="p-5 flex flex-col h-[330px]">
                         <div class="flex items-center justify-between mb-2">
                             <div>
@@ -165,7 +165,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {{-- Properti Terpopuler --}}
                 <div
-                    class="rounded-2xl bg-white/80 bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30">
+                    class="rounded-2xl  bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30">
                     <div class="p-5 flex flex-col h-[340px]">
                         <div class="flex items-center justify-between mb-2">
                             <div>
@@ -185,7 +185,7 @@
 
                 {{-- Review Per Bulan --}}
                 <div
-                    class="rounded-2xl bg-white/80 bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30">
+                    class="rounded-2xl  bg-slate-800 border border-slate-100/80 dark:border-slate-800 shadow-lg shadow-slate-200/60 dark:shadow-black/30">
                     <div class="p-5 flex flex-col h-[340px]">
                         <div class="flex items-center justify-between mb-2">
                             <div>

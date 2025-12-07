@@ -24,13 +24,7 @@
                                     @if($properti->gambar)
                                         <div class="mb-4">
                                             <p class="text-sm text-gray-600 mb-2">Foto saat ini:</p>
-                                            @php
-                                                $imageSrc = $properti->gambar;
-                                                if (!str_starts_with($imageSrc, 'data:image')) {
-                                                    $imageSrc = 'data:image/jpeg;base64,' . $imageSrc;
-                                                }
-                                            @endphp
-                                            <img src="{{ $imageSrc }}" 
+                                            <img src="{{ asset($properti->gambar) }}" 
                                                  alt="Current Photo" 
                                                  class="w-48 h-32 object-cover rounded-lg border-2 border-gray-300"
                                                  id="current-image">
@@ -44,7 +38,7 @@
                                            accept="image/*"
                                            onchange="previewImage(event)"
                                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                                    <p class="mt-1 text-xs text-gray-500">JPG, PNG, atau JPEG (Max. 2MB). Biarkan kosong jika tidak ingin mengubah foto.</p>
+                                    <p class="mt-1 text-xs text-gray-500">JPG, PNG, atau JPEG (Max. 10MB). Biarkan kosong jika tidak ingin mengubah foto.</p>
                                     
                                     <!-- New Image Preview -->
                                     <img id="preview-image" 

@@ -83,11 +83,21 @@ class PropertiController extends Controller
             'luas_tanah' => 'nullable|integer|min:0',
             'luas_bangunan' => 'nullable|integer|min:0',
             'deskripsi' => 'nullable|string',
+            'gambar' => 'nullable|image|mimes:jpeg,jpg,png|max:10240',
         ]);
 
         $validated['pemilik_id'] = auth()->id();
         $validated['status'] = 'tersedia';
-        $validated['gambar'] = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2NjYyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Tm8gSW1hZ2U8L3RleHQ+PC9zdmc+';
+        
+        // Handle gambar upload - simpan sebagai file
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $filename = 'properti_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('storage/properti'), $filename);
+            $validated['gambar'] = 'storage/properti/' . $filename;
+        } else {
+            $validated['gambar'] = null;
+        }
 
         $properti = Properti::create($validated);
 
@@ -115,14 +125,20 @@ class PropertiController extends Controller
             'luas_bangunan' => 'nullable|integer|min:0',
             'deskripsi' => 'nullable|string',
             'status' => 'required|in:tersedia,disewa',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
         ]);
 
-        // Handle image upload
+        // Handle image upload - simpan sebagai file
         if ($request->hasFile('gambar')) {
-            $image = $request->file('gambar');
-            $imageData = base64_encode(file_get_contents($image->getRealPath()));
-            $validated['gambar'] = $imageData;
+            // Hapus gambar lama jika ada
+            if ($properti->gambar && file_exists(public_path($properti->gambar))) {
+                unlink(public_path($properti->gambar));
+            }
+            
+            $file = $request->file('gambar');
+            $filename = 'properti_' . $properti->id_properti . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('storage/properti'), $filename);
+            $validated['gambar'] = 'storage/properti/' . $filename;
         }
 
         $properti->update($validated);

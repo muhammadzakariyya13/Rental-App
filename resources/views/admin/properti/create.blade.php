@@ -99,6 +99,7 @@
                         <div>
                             <label for="gambar" class="block text-sm font-medium mb-2">Gambar Properti</label>
                             <input type="file" id="gambar" name="gambar" accept="image/*" required class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded {{ $errors->has('gambar') ? 'border-red-500' : 'border-gray-300' }}">
+                            <p class="text-xs text-gray-500 mt-1">JPG, PNG, atau JPEG (Max. 10MB)</p>
                             @error('gambar')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -109,7 +110,6 @@
                             <select id="status" name="status" required class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded {{ $errors->has('status') ? 'border-red-500' : 'border-gray-300' }}">
                                 <option value="tersedia" {{ old('status') == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
                                 <option value="disewa" {{ old('status') == 'disewa' ? 'selected' : '' }}>Disewa</option>
-                                <option value="maintenance" {{ old('status') == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
                             </select>
                             @error('status')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

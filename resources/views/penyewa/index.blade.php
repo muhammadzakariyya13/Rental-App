@@ -35,7 +35,7 @@
                 Properti Tersedia
             </h2>
             <p class="text-gray-600 text-center text-sm">
-                {{ $properti->total() }} properti ditemukan
+                {{ $properti->count() }} properti pilihan terbaik
             </p>
         </div>
 
@@ -46,7 +46,7 @@
                         {{-- Image --}}
                         <div class="relative h-48 bg-gray-200">
                             @if($item->gambar)
-                                <img src="data:image/jpeg;base64,{{ $item->gambar }}" 
+                                <img src="{{ asset($item->gambar) }}" 
                                      alt="{{ $item->nama }}"
                                      class="w-full h-full object-cover">
                             @else
@@ -99,13 +99,6 @@
                     </div>
                 @endforeach
             </div>
-
-            {{-- Pagination --}}
-            @if($properti->hasPages())
-                <div class="mt-8 flex justify-center">
-                    {{ $properti->links() }}
-                </div>
-            @endif
 
             {{-- Button Lihat Semua --}}
             <div class="mt-8 flex justify-center">

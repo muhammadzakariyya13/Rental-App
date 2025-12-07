@@ -25,7 +25,7 @@
                             {{ __('Kelola Properti') }}
                         </x-nav-link>
                         <x-nav-link :href="route('admin.pemesanan.index')" :active="request()->routeIs('admin.pemesanan*')">
-                            {{ __('Kelola Pemesanan') }}
+                            {{ __('Lihat Pemesanan') }}
                         </x-nav-link>
                         <x-nav-link :href="route('admin.reviews.index')" :active="request()->routeIs('admin.reviews*')">
                             {{ __('Kelola Review') }}

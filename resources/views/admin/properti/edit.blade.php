@@ -100,10 +100,11 @@
                             <label for="gambar" class="block text-sm font-medium mb-2">Gambar Properti</label>
                             @if($properti->gambar)
                                 <div class="mb-3">
-                                    <img src="data:image/jpeg;base64,{{ $properti->gambar }}" alt="{{ $properti->nama }}" class="w-32 h-32 rounded object-cover">
+                                    <img src="{{ asset($properti->gambar) }}" alt="{{ $properti->nama }}" class="w-32 h-32 rounded object-cover">
                                 </div>
                             @endif
                             <input type="file" id="gambar" name="gambar" accept="image/*" class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded {{ $errors->has('gambar') ? 'border-red-500' : 'border-gray-300' }}">
+                            <p class="text-xs text-gray-500 mt-1">JPG, PNG, atau JPEG (Max. 10MB). Biarkan kosong jika tidak ingin mengubah gambar.</p>
                             @error('gambar')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -114,7 +115,6 @@
                             <select id="status" name="status" required class="w-full px-4 py-2 border dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded {{ $errors->has('status') ? 'border-red-500' : 'border-gray-300' }}">
                                 <option value="tersedia" {{ $properti->status == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
                                 <option value="disewa" {{ $properti->status == 'disewa' ? 'selected' : '' }}>Disewa</option>
-                                <option value="maintenance" {{ $properti->status == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
                             </select>
                             @error('status')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

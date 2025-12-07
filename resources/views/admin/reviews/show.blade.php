@@ -17,7 +17,17 @@
 
                     {{-- Properti Info --}}
                     <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <h3 class="text-lg font-semibold mb-2">Informasi Properti</h3>
+                        <h3 class="text-lg font-semibold mb-4">Informasi Properti</h3>
+                        
+                        {{-- Gambar Properti --}}
+                        @if($review->properti && $review->properti->gambar)
+                            <div class="mb-4">
+                                <img src="{{ asset($review->properti->gambar) }}" 
+                                     alt="{{ $review->properti->nama }}" 
+                                     class="w-full h-48 object-cover rounded-lg">
+                            </div>
+                        @endif
+                        
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <p class="text-sm text-gray-600 dark:text-gray-400">Nama Properti</p>
@@ -25,7 +35,7 @@
                             </div>
                             <div>
                                 <p class="text-sm text-gray-600 dark:text-gray-400">Lokasi</p>
-                                <p class="font-medium">{{ $review->properti->lokasi ?? '-' }}</p>
+                                <p class="font-medium">{{ $review->properti->alamat ?? '-' }}</p>
                             </div>
                         </div>
                     </div>

@@ -115,7 +115,7 @@
                             </div>
                             <div class="ml-3 w-0 flex-1">
                                 <dl>
-                                    <dt class="text-sm font-medium text-white truncate">Diterima</dt>
+                                    <dt class="text-sm font-medium text-white truncate">Lunas</dt>
                                     <dd class="text-lg font-medium text-white" id="stat-diterima">{{ $bookingDiterima }}</dd>
                                 </dl>
                             </div>
@@ -270,13 +270,7 @@
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-12 w-16 mr-3">
                                                     @if($booking->properti->gambar)
-                                                        @php
-                                                            $propertiImage = $booking->properti->gambar;
-                                                            if (!str_starts_with($propertiImage, 'data:image')) {
-                                                                $propertiImage = 'data:image/jpeg;base64,' . $propertiImage;
-                                                            }
-                                                        @endphp
-                                                        <img src="{{ $propertiImage }}" alt="{{ $booking->properti->nama }}" class="h-12 w-16 object-cover rounded">
+                                                        <img src="{{ asset($booking->properti->gambar) }}" alt="{{ $booking->properti->nama }}" class="h-12 w-16 object-cover rounded">
                                                     @else
                                                         <div class="h-12 w-16 bg-gray-200 rounded flex items-center justify-center">
                                                             <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

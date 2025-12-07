@@ -52,7 +52,7 @@
                         {{-- Image --}}
                         <div class="relative h-56 bg-gradient-to-br from-gray-100 to-gray-200">
                             @if($item->gambar)
-                                <img src="data:image/jpeg;base64,{{ $item->gambar }}" 
+                                <img src="{{ asset($item->gambar) }}" 
                                      alt="{{ $item->nama }}"
                                      class="w-full h-full object-cover">
                             @else

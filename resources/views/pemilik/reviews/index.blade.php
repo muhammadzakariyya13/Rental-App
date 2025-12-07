@@ -226,13 +226,7 @@
                                             <!-- Property Image -->
                                             <div class="flex-shrink-0">
                                                 @if($review->properti && $review->properti->gambar)
-                                                    @php
-                                                        $propertiImage = $review->properti->gambar;
-                                                        if (!str_starts_with($propertiImage, 'data:image')) {
-                                                            $propertiImage = 'data:image/jpeg;base64,' . $propertiImage;
-                                                        }
-                                                    @endphp
-                                                    <img src="{{ $propertiImage }}" alt="{{ $review->properti->nama }}" class="h-16 w-20 object-cover rounded">
+                                                    <img src="{{ asset($review->properti->gambar) }}" alt="{{ $review->properti->nama }}" class="h-16 w-20 object-cover rounded">
                                                 @else
                                                     <div class="h-16 w-20 bg-gray-200 rounded flex items-center justify-center">
                                                         <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

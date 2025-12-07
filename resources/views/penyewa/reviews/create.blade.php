@@ -24,7 +24,7 @@
                 {{-- Image --}}
                 <div class="md:w-64 h-48 bg-gray-200">
                     @if($pemesanan->properti->gambar)
-                        <img src="data:image/jpeg;base64,{{ $pemesanan->properti->gambar }}" 
+                        <img src="{{ asset($pemesanan->properti->gambar) }}" 
                              alt="{{ $pemesanan->properti->nama }}"
                              class="w-full h-full object-cover">
                     @else

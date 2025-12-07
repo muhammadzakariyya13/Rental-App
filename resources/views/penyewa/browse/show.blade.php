@@ -28,7 +28,7 @@
                 {{-- Image Section --}}
                 <div class="bg-white rounded-xl shadow-md overflow-hidden">
                     @if($properti->gambar)
-                        <img src="data:image/jpeg;base64,{{ $properti->gambar }}" 
+                        <img src="{{ asset($properti->gambar) }}" 
                              alt="{{ $properti->nama }}"
                              class="w-full h-96 object-cover">
                     @else

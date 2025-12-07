@@ -35,7 +35,7 @@
                                         <td class="px-6 py-4">
                                             <div class="flex items-center gap-3">
                                                 @if($review->properti && $review->properti->gambar)
-                                                    <img src="data:image/jpeg;base64,{{ $review->properti->gambar }}" 
+                                                    <img src="{{ asset($review->properti->gambar) }}" 
                                                          alt="{{ $review->properti->nama ?? 'Properti' }}" 
                                                          class="w-16 h-16 object-cover rounded"
                                                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">

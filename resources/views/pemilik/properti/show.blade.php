@@ -247,14 +247,7 @@
                         <div class="p-6">
                             @if($properti->gambar)
                                 <div class="flex justify-center">
-                                    @php
-                                        $imageSrc = $properti->gambar;
-                                        // Add data URI prefix if not present
-                                        if (!str_starts_with($imageSrc, 'data:image')) {
-                                            $imageSrc = 'data:image/jpeg;base64,' . $imageSrc;
-                                        }
-                                    @endphp
-                                    <img src="{{ $imageSrc }}" 
+                                    <img src="{{ asset($properti->gambar) }}" 
                                         alt="Foto {{ $properti->nama }}"
                                         class="max-w-full max-h-96 rounded-lg shadow-lg object-cover">
                                 </div>

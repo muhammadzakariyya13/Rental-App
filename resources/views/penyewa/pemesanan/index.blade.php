@@ -75,13 +75,7 @@
                         <div class="md:w-64 md:flex-shrink-0">
                             <div class="h-48 md:h-full w-full relative overflow-hidden bg-gray-200">
                                 @if($item->properti->gambar)
-                                    @php
-                                        $propertiImage = $item->properti->gambar;
-                                        if (!str_starts_with($propertiImage, 'data:image')) {
-                                            $propertiImage = 'data:image/jpeg;base64,' . $propertiImage;
-                                        }
-                                    @endphp
-                                    <img src="{{ $propertiImage }}" 
+                                    <img src="{{ asset($item->properti->gambar) }}" 
                                          alt="{{ $item->properti->nama }}"
                                          class="w-full h-full object-cover">
                                 @else

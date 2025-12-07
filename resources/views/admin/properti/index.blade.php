@@ -46,7 +46,7 @@
                                         <td class="px-6 py-4">{{ $prop->id_properti }}</td>
                                         <td class="px-6 py-4">
                                             @if($prop->gambar)
-                                                <img src="data:image/jpeg;base64,{{ $prop->gambar }}" alt="{{ $prop->nama }}" class="w-16 h-16 rounded object-cover">
+                                                <img src="{{ asset($prop->gambar) }}" alt="{{ $prop->nama }}" class="w-16 h-16 rounded object-cover">
                                             @else
                                                 <span class="text-gray-500">Tidak ada gambar</span>
                                             @endif

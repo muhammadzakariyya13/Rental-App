@@ -9,10 +9,26 @@
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="p-6">
-                    <form action="{{ route('pemilik.properti.store') }}" method="POST">
+                    <form action="{{ route('pemilik.properti.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Gambar Properti -->
+                            <div class="col-span-2">
+                                <label for="gambar" class="block text-sm font-medium text-gray-700">Gambar Properti</label>
+                                <input type="file" name="gambar" id="gambar" accept="image/*"
+                                       class="mt-1 block w-full text-sm text-gray-500
+                                              file:mr-4 file:py-2 file:px-4
+                                              file:rounded-md file:border-0
+                                              file:text-sm file:font-semibold
+                                              file:bg-blue-50 file:text-blue-700
+                                              hover:file:bg-blue-100">
+                                <p class="mt-1 text-sm text-gray-500">Upload gambar utama properti (JPG, PNG, max 10MB)</p>
+                                @error('gambar')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                             <!-- Nama Properti -->
                             <div class="col-span-2">
                                 <label for="nama" class="block text-sm font-medium text-gray-700">Nama Properti</label>
@@ -96,7 +112,6 @@
                                         required>
                                     <option value="tersedia">Tersedia</option>
                                     <option value="disewa">Disewa</option>
-                                    <option value="maintenance">Maintenance</option>
                                 </select>
                             </div>
 

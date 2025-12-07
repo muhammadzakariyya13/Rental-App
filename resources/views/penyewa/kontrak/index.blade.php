@@ -70,7 +70,7 @@
                             {{-- Image --}}
                             <div class="md:w-64 h-48 md:h-auto bg-gray-200 flex-shrink-0">
                                 @if($item->properti->gambar)
-                                    <img src="data:image/jpeg;base64,{{ $item->properti->gambar }}" 
+                                    <img src="{{ asset($item->properti->gambar) }}" 
                                          alt="{{ $item->properti->nama }}"
                                          class="w-full h-full object-cover">
                                 @else

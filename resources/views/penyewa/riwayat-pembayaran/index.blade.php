@@ -137,13 +137,7 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
                                         @if($item->properti && $item->properti->gambar)
-                                            @php
-                                                $propertiImage = $item->properti->gambar;
-                                                if (!str_starts_with($propertiImage, 'data:image')) {
-                                                    $propertiImage = 'data:image/jpeg;base64,' . $propertiImage;
-                                                }
-                                            @endphp
-                                            <img src="{{ $propertiImage }}" alt="{{ $item->properti->nama }}" class="w-16 h-16 rounded-lg object-cover mr-3 shadow-sm">
+                                            <img src="{{ asset($item->properti->gambar) }}" alt="{{ $item->properti->nama }}" class="w-16 h-16 rounded-lg object-cover mr-3 shadow-sm">
                                         @else
                                             <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
                                                 <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
