@@ -72,4 +72,62 @@ class AdminController extends Controller
             'reviewPerBulan'
         ));
     }
+
+    public function pendapatan(): View
+    {
+        // Total Pendapatan Admin dari Biaya Admin (seluruh waktu)
+        $totalPendapatanAdmin = Pemesanan::where('status_pemesanan', 'confirmed')
+            ->where('status_pembayaran', 'sudah_bayar')
+            ->sum('biaya_admin');
+
+        // Pendapatan Admin Bulan Ini
+        $pendapatanBulanIni = Pemesanan::where('status_pemesanan', 'confirmed')
+            ->where('status_pembayaran', 'sudah_bayar')
+            ->whereMonth('paid_at', now()->month)
+            ->whereYear('paid_at', now()->year)
+            ->sum('biaya_admin');
+
+        // Pendapatan Admin Tahun Ini
+        $pendapatanTahunIni = Pemesanan::where('status_pemesanan', 'confirmed')
+            ->where('status_pembayaran', 'sudah_bayar')
+            ->whereYear('paid_at', now()->year)
+            ->sum('biaya_admin');
+
+        // Grafik Pendapatan Admin Per Bulan (12 bulan terakhir)
+        $chartData = [];
+        $namaBulan = [
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+            5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
+            9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+        ];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $pendapatan = Pemesanan::where('status_pemesanan', 'confirmed')
+                ->where('status_pembayaran', 'sudah_bayar')
+                ->whereMonth('paid_at', $date->month)
+                ->whereYear('paid_at', $date->year)
+                ->sum('biaya_admin');
+
+            $chartData[] = [
+                'bulan' => $namaBulan[$date->month],
+                'pendapatan' => $pendapatan
+            ];
+        }
+
+        // Daftar Transaksi dengan Biaya Admin (untuk tabel)
+        $transaksi = Pemesanan::with(['properti', 'akun', 'properti.pemilik'])
+            ->where('status_pemesanan', 'confirmed')
+            ->where('status_pembayaran', 'sudah_bayar')
+            ->orderBy('paid_at', 'desc')
+            ->paginate(15);
+
+        return view('admin.pendapatan.index', compact(
+            'totalPendapatanAdmin',
+            'pendapatanBulanIni',
+            'pendapatanTahunIni',
+            'chartData',
+            'transaksi'
+        ));
+    }
 }

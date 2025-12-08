@@ -53,6 +53,14 @@
                         <span class="text-gray-600">Harga per Bulan:</span>
                         <span class="font-semibold text-gray-900">Rp {{ number_format($pemesanan->properti->harga, 0, ',', '.') }}</span>
                     </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Subtotal:</span>
+                        <span class="font-semibold text-gray-900">Rp {{ number_format($pemesanan->properti->harga * $pemesanan->lama_sewa, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Biaya Admin (0.5%):</span>
+                        <span class="font-semibold text-gray-900">Rp {{ number_format($pemesanan->biaya_admin, 0, ',', '.') }}</span>
+                    </div>
                     <div class="border-t border-gray-300 pt-3 mt-3">
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-bold text-gray-900">Total Pembayaran:</span>

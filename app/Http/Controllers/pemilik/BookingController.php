@@ -87,29 +87,33 @@ class BookingController extends Controller
           ->whereYear('created_at', now()->year)
           ->count();
 
-        // Hitung Total Pendapatan (hanya yang confirmed dan sudah bayar)
+        // Hitung Total Pendapatan BERSIH (total_harga - biaya_admin)
+        // Karena biaya admin untuk platform
         $totalPendapatan = Pemesanan::whereHas('properti', function($q) {
             $q->where('pemilik_id', Auth::id());
         })->where('status_pemesanan', 'confirmed')
           ->where('status_pembayaran', 'sudah_bayar')
-          ->sum('total_harga');
+          ->selectRaw('SUM(total_harga - biaya_admin) as pendapatan_bersih')
+          ->value('pendapatan_bersih') ?? 0;
 
-        // Pendapatan Bulan Ini
+        // Pendapatan Bersih Bulan Ini
         $pendapatanBulanIni = Pemesanan::whereHas('properti', function($q) {
             $q->where('pemilik_id', Auth::id());
         })->where('status_pemesanan', 'confirmed')
           ->where('status_pembayaran', 'sudah_bayar')
           ->whereMonth('paid_at', now()->month)
           ->whereYear('paid_at', now()->year)
-          ->sum('total_harga');
+          ->selectRaw('SUM(total_harga - biaya_admin) as pendapatan_bersih')
+          ->value('pendapatan_bersih') ?? 0;
 
-        // Pendapatan Hari Ini
+        // Pendapatan Bersih Hari Ini
         $pendapatanHariIni = Pemesanan::whereHas('properti', function($q) {
             $q->where('pemilik_id', Auth::id());
         })->where('status_pemesanan', 'confirmed')
           ->where('status_pembayaran', 'sudah_bayar')
           ->whereDate('paid_at', today())
-          ->sum('total_harga');
+          ->selectRaw('SUM(total_harga - biaya_admin) as pendapatan_bersih')
+          ->value('pendapatan_bersih') ?? 0;
 
         // List properti untuk filter
         $propertiList = Properti::where('pemilik_id', Auth::id())->get();
@@ -174,13 +178,53 @@ class BookingController extends Controller
                 $booking->refund_date = now();
                 
                 $booking->save();
+
+                // Check if there are any other confirmed bookings for this property
+                $hasActiveBooking = Pemesanan::where('id_properti', $booking->id_properti)
+                    ->where('status_pemesanan', 'confirmed')
+                    ->where('status_pembayaran', 'sudah_bayar')
+                    ->where('id_pemesanan', '!=', $booking->id_pemesanan)
+                    ->exists();
+
+                // If no active bookings, change property status back to 'tersedia'
+                if (!$hasActiveBooking) {
+                    $booking->properti->update(['status' => 'tersedia']);
+                }
                 
                 return back()->with('success', 'Status booking berhasil diperbarui dan refund telah diproses ke Midtrans.');
                 
             } catch (\Exception $e) {
                 // Jika refund gagal, tetap update status tapi beri notifikasi
                 $booking->save();
+
+                // Check if there are any other confirmed bookings for this property
+                $hasActiveBooking = Pemesanan::where('id_properti', $booking->id_properti)
+                    ->where('status_pemesanan', 'confirmed')
+                    ->where('status_pembayaran', 'sudah_bayar')
+                    ->where('id_pemesanan', '!=', $booking->id_pemesanan)
+                    ->exists();
+
+                // If no active bookings, change property status back to 'tersedia'
+                if (!$hasActiveBooking) {
+                    $booking->properti->update(['status' => 'tersedia']);
+                }
+
                 return back()->with('warning', 'Status booking berhasil diperbarui, namun refund gagal: ' . $e->getMessage() . '. Silakan lakukan refund manual di dashboard Midtrans.');
+            }
+        }
+
+        // Handle status change to cancelled (without refund)
+        if ($request->status === 'cancelled') {
+            // Check if there are any other confirmed bookings for this property
+            $hasActiveBooking = Pemesanan::where('id_properti', $booking->id_properti)
+                ->where('status_pemesanan', 'confirmed')
+                ->where('status_pembayaran', 'sudah_bayar')
+                ->where('id_pemesanan', '!=', $booking->id_pemesanan)
+                ->exists();
+
+            // If no active bookings, change property status back to 'tersedia'
+            if (!$hasActiveBooking) {
+                $booking->properti->update(['status' => 'tersedia']);
             }
         }
         

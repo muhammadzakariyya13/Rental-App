@@ -52,7 +52,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <div class="text-2xl font-bold text-green-600">
-                                Rp {{ number_format($monthlyIncome / 1000000, 1) }}M
+                                Rp {{ number_format($monthlyIncome, 0, ',', '.') }}
                             </div>
                             <div class="text-gray-600 text-sm">Pendapatan Bulanan</div>
                             <a href="{{ route('pemilik.bookings.index') }}" class="text-green-500 text-xs hover:underline cursor-pointer">
@@ -85,58 +85,12 @@
             @endif
 
             <!-- Charts Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="mb-6">
                 <!-- Revenue Chart -->
                 <div class="bg-white border border-gray-200 rounded-lg p-6 shadow">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">📈 Tren Pendapatan (12 Bulan)</h3>
                     <div class="h-64">
                         <canvas id="revenueChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Top Properties -->
-                <div class="bg-white border border-gray-200 rounded-lg p-6 shadow">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🏆 Properti Terbaik</h3>
-                    <div class="space-y-3">
-                        @forelse($propertyStats as $property)
-                        <div class="border border-gray-200 rounded p-3 hover:bg-gray-50 transition-colors">
-                            <div class="flex justify-between items-center gap-3">
-                                <div class="flex items-center gap-3 flex-1">
-                                    @if($property->gambar)
-                                        @php
-                                            $imageData = $property->gambar;
-                                            if (!str_starts_with($imageData, 'data:image')) {
-                                                $imageData = 'data:image/jpeg;base64,' . $imageData;
-                                            }
-                                        @endphp
-                                        <img src="{{ $imageData }}" alt="{{ $property->nama }}" class="w-16 h-16 object-cover rounded">
-                                    @else
-                                        <div class="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
-                                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                                            </svg>
-                                        </div>
-                                    @endif
-                                    <div>
-                                        <div class="font-medium text-gray-800">{{ Str::limit($property->nama, 25) }}</div>
-                                        <div class="text-sm text-gray-600">
-                                            {{ $property->total_bookings }} bookings • 
-                                            ⭐ {{ number_format($property->avg_rating, 1) }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="font-semibold text-green-600">
-                                        Rp {{ number_format($property->total_revenue, 0, ',', '.') }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @empty
-                        <div class="text-center text-gray-500 py-4">
-                            Belum ada data properti
-                        </div>
-                        @endforelse
                     </div>
                 </div>
             </div>
@@ -267,28 +221,6 @@
                 </div>
             </div>
 
-            <!-- Performance Summary -->
-            <div class="bg-white border border-gray-200 rounded-lg p-6 shadow">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 Ringkasan Performa</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-green-600">
-                            Rp {{ number_format($pendapatanTahunIni / 1000000, 0) }}M
-                        </div>
-                        <div class="text-sm text-gray-600">Tahun {{ now()->year }}</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-purple-600">
-                            {{ $propertyStats->count() > 0 ? number_format($propertyStats->avg('avg_rating'), 1) : '0.0' }}
-                        </div>
-                        <div class="text-sm text-gray-600">Rating Rata-rata</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-2xl font-bold text-orange-600">{{ $totalReviews }}</div>
-                        <div class="text-sm text-gray-600">Total Review</div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -322,7 +254,7 @@
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return 'Rp ' + (value/1000000).toFixed(0) + 'M';
+                                return 'Rp ' + value.toLocaleString('id-ID');
                             }
                         }
                     }

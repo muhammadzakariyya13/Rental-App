@@ -228,6 +228,7 @@
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Properti</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Periode</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Biaya Admin</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                     </tr>
@@ -293,6 +294,10 @@
                                             <div class="text-sm font-medium text-gray-900">Rp {{ number_format($booking->total_harga, 0, ',', '.') }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-orange-600">Rp {{ number_format($booking->biaya_admin, 0, ',', '.') }}</div>
+                                            <div class="text-xs text-gray-500">0.5%</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ 
                                                 $booking->status_pemesanan === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
                                                 ($booking->status_pemesanan === 'confirmed' ? 'bg-green-100 text-green-800' : 
@@ -306,19 +311,7 @@
                                                 <a href="{{ route('pemilik.bookings.show', $booking->id_pemesanan) }}" 
                                                    class="text-indigo-600 hover:text-indigo-900 transition">Detail</a>
                                                 
-                                                @if($booking->status_pemesanan === 'pending')
-                                                    <form action="{{ route('pemilik.bookings.updateStatus', $booking->id_pemesanan) }}" method="POST" class="inline">
-                                                        @csrf
-                                                        <input type="hidden" name="status" value="confirmed">
-                                                        <button type="submit" class="text-green-600 hover:text-green-900 transition">Terima</button>
-                                                    </form>
-                                                    <form action="{{ route('pemilik.bookings.updateStatus', $booking->id_pemesanan) }}" method="POST" class="inline">
-                                                        @csrf
-                                                        <input type="hidden" name="status" value="cancelled">
-                                                        <button type="submit" class="text-red-600 hover:text-red-900 transition"
-                                                                onclick="return confirm('Yakin ingin menolak booking ini?')">Tolak</button>
-                                                    </form>
-                                                @elseif($booking->status_pemesanan === 'confirmed')
+                                                @if($booking->status_pemesanan === 'confirmed')
                                                     <form action="{{ route('pemilik.bookings.updateStatus', $booking->id_pemesanan) }}" method="POST" class="inline">
                                                         @csrf
                                                         <input type="hidden" name="status" value="cancelled">

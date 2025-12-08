@@ -18,6 +18,7 @@ class Pemesanan extends Model
         'tanggal_pemesanan',
         'lama_sewa',
         'total_harga',
+        'biaya_admin',
         'status_pemesanan',
         'metode_pembayaran',
         'status_pembayaran',

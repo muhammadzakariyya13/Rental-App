@@ -27,6 +27,14 @@
                                 <p class="text-lg">{{ $pemesanan->lama_sewa }} hari</p>
                             </div>
                             <div>
+                                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Subtotal</label>
+                                <p class="text-lg">Rp {{ number_format($pemesanan->total_harga - $pemesanan->biaya_admin, 0, ',', '.') }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Biaya Admin (0.5%)</label>
+                                <p class="text-lg">Rp {{ number_format($pemesanan->biaya_admin, 0, ',', '.') }}</p>
+                            </div>
+                            <div>
                                 <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Total Harga</label>
                                 <p class="text-lg font-semibold text-blue-600">Rp {{ number_format($pemesanan->total_harga, 0, ',', '.') }}</p>
                             </div>

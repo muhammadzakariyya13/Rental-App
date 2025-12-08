@@ -27,6 +27,9 @@
                         <x-nav-link :href="route('admin.pemesanan.index')" :active="request()->routeIs('admin.pemesanan*')">
                             {{ __('Lihat Pemesanan') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.pendapatan.index')" :active="request()->routeIs('admin.pendapatan*')">
+                            {{ __('Pendapatan') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('admin.reviews.index')" :active="request()->routeIs('admin.reviews*')">
                             {{ __('Kelola Review') }}
                         </x-nav-link>
@@ -127,11 +130,32 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
             
+            @if(Auth::user()->hasRole('admin'))
+                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                    {{ __('Dashboard Admin') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users*')">
+                    {{ __('Kelola Pengguna') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.properti.index')" :active="request()->routeIs('admin.properti*')">
+                    {{ __('Kelola Properti') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.pemesanan.index')" :active="request()->routeIs('admin.pemesanan*')">
+                    {{ __('Lihat Pemesanan') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.pendapatan.index')" :active="request()->routeIs('admin.pendapatan*')">
+                    {{ __('Pendapatan') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.reviews.index')" :active="request()->routeIs('admin.reviews*')">
+                    {{ __('Kelola Review') }}
+                </x-responsive-nav-link>
+            @endif
+
             @if(Auth::user()->hasRole('pemilik'))
+                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    {{ __('Dashboard') }}
+                </x-responsive-nav-link>
                 <div class="px-4 py-2">
                     <div class="grid grid-cols-2 gap-2">
                         <a href="{{ route('pemilik.properti.create') }}" class="bg-green-500 text-white px-3 py-2 rounded text-center text-sm">

@@ -40,6 +40,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 // Admin routes
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/pendapatan', [AdminController::class, 'pendapatan'])->name('pendapatan.index');
     Route::resource('users', AdminUserController::class);
     Route::resource('properti', AdminPropertiController::class);
     Route::resource('pemesanan', AdminPemesananController::class)->only(['index', 'show', 'destroy']);
@@ -106,6 +107,7 @@ Route::middleware(['auth'])->prefix('penyewa')->name('penyewa.')->group(function
     Route::get('/pemesanan/payment/{id_pemesanan}', [PenyewaPemesananController::class, 'payment'])->name('pemesanan.payment');
     Route::get('/pemesanan/success/{id_pemesanan}', [PenyewaPemesananController::class, 'success'])->name('pemesanan.success');
     Route::delete('/pemesanan/{id}/cancel', [PenyewaPemesananController::class, 'cancel'])->name('pemesanan.cancel');
+    Route::delete('/pemesanan/{id}/destroy', [PenyewaPemesananController::class, 'destroy'])->name('pemesanan.destroy');
     Route::get('/pemesanan/{id}', [PenyewaPemesananController::class, 'show'])->name('pemesanan.show');
     
     // Kontrak routes

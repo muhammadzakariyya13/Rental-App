@@ -70,13 +70,6 @@
                                                 <a href="{{ route('admin.properti.edit', $prop->id_properti) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs font-medium whitespace-nowrap">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>
-                                                <form action="{{ route('admin.properti.destroy', $prop->id_properti) }}" method="POST" class="inline" onclick="return confirm('Yakin ingin menghapus?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-medium whitespace-nowrap">
-                                                        <i class="fas fa-trash"></i> Hapus
-                                                    </button>
-                                                </form>
                                             </div>
                                         </td>
                                     </tr>

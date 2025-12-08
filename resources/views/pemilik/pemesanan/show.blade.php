@@ -95,13 +95,7 @@
                                 </div>
                                 <div>
                                     @if($booking->properti->gambar)
-                                        @php
-                                            $imageSrc = $booking->properti->gambar;
-                                            if (!str_starts_with($imageSrc, 'data:image')) {
-                                                $imageSrc = 'data:image/jpeg;base64,' . $imageSrc;
-                                            }
-                                        @endphp
-                                        <img src="{{ $imageSrc }}" 
+                                        <img src="{{ asset($booking->properti->gambar) }}" 
                                              alt="{{ $booking->properti->nama }}" 
                                              class="w-full h-32 object-cover rounded-lg">
                                     @else
@@ -136,6 +130,8 @@
                                     <h4 class="font-medium text-gray-900 mb-2">Informasi Pembayaran</h4>
                                     <div class="space-y-2">
                                         <p class="text-sm"><span class="font-medium">Harga per bulan:</span> Rp {{ number_format($booking->properti->harga, 0, ',', '.') }}</p>
+                                        <p class="text-sm"><span class="font-medium">Subtotal ({{ $booking->lama_sewa }} bulan):</span> Rp {{ number_format($booking->properti->harga * $booking->lama_sewa, 0, ',', '.') }}</p>
+                                        <p class="text-sm"><span class="font-medium">Biaya Admin (0.5%):</span> Rp {{ number_format($booking->biaya_admin, 0, ',', '.') }}</p>
                                         <p class="text-lg font-bold text-green-600">Total: Rp {{ number_format($booking->total_harga, 0, ',', '.') }}</p>
                                     </div>
                                 </div>
@@ -148,31 +144,7 @@
                 <div class="space-y-6">
                     
                     <!-- Status Actions -->
-                    @if($booking->status_pemesanan === 'pending')
-                        <div class="bg-white overflow-hidden shadow-lg sm:rounded-lg">
-                            <div class="px-6 py-4 border-b border-gray-200">
-                                <h3 class="text-lg font-medium text-gray-900">Aksi Booking</h3>
-                            </div>
-                            <div class="px-6 py-4 space-y-3">
-                                <form method="POST" action="{{ route('pemilik.bookings.updateStatus', $booking->id_pemesanan) }}">
-                                    @csrf
-                                    <input type="hidden" name="status" value="confirmed">
-                                    <button type="submit" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-200">
-                                        Terima Booking
-                                    </button>
-                                </form>
-                                
-                                <form method="POST" action="{{ route('pemilik.bookings.updateStatus', $booking->id_pemesanan) }}">
-                                    @csrf
-                                    <input type="hidden" name="status" value="cancelled">
-                                    <button type="submit" class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-200" 
-                                            onclick="return confirm('Yakin ingin menolak booking ini?')">
-                                        Tolak Booking
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @elseif($booking->status_pemesanan === 'confirmed')
+                    @if($booking->status_pemesanan === 'confirmed')
                         <div class="bg-white overflow-hidden shadow-lg sm:rounded-lg">
                             <div class="px-6 py-4 border-b border-gray-200">
                                 <h3 class="text-lg font-medium text-gray-900">Aksi Booking</h3>

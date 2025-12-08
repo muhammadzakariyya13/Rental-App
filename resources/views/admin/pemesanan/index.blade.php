@@ -40,6 +40,7 @@
                                     <th class="px-6 py-3">Properti</th>
                                     <th class="px-6 py-3">Tanggal</th>
                                     <th class="px-6 py-3">Total Harga</th>
+                                    <th class="px-6 py-3">Biaya Admin</th>
                                     <th class="px-6 py-3">Status</th>
                                     <th class="px-6 py-3">Action</th>
                                 </tr>
@@ -79,7 +80,13 @@
                                             <div class="text-sm">{{ $pesan->tanggal_pemesanan->format('d/m/Y') }}</div>
                                             <div class="text-xs text-gray-500">{{ $pesan->lama_sewa }} hari</div>
                                         </td>
-                                        <td class="px-6 py-4">Rp {{ number_format($pesan->total_harga, 0, ',', '.') }}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm font-medium">Rp {{ number_format($pesan->total_harga, 0, ',', '.') }}</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm font-medium text-orange-600">Rp {{ number_format($pesan->biaya_admin, 0, ',', '.') }}</div>
+                                            <div class="text-xs text-gray-500">0.5%</div>
+                                        </td>
                                         <td class="px-6 py-4">
                                             <span class="px-2 py-1 rounded text-xs font-medium 
                                                 {{ $pesan->status_pembayaran == 'sudah_bayar' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">

@@ -86,7 +86,9 @@ class PemesananController extends Controller
         $properti = Properti::findOrFail($request->id_properti);
         
         // Calculate total price
-        $total_harga = $properti->harga * $request->lama_sewa;
+        $subtotal = $properti->harga * $request->lama_sewa;
+        $biaya_admin = $subtotal * 0.005; // 0.5% biaya admin
+        $total_harga = $subtotal + $biaya_admin;
 
         // Create pemesanan
         $pemesanan = Pemesanan::create([
@@ -95,6 +97,7 @@ class PemesananController extends Controller
             'tanggal_pemesanan' => $request->tanggal_mulai,
             'lama_sewa' => $request->lama_sewa,
             'total_harga' => $total_harga,
+            'biaya_admin' => $biaya_admin,
             'status_pemesanan' => 'pending',
             'metode_pembayaran' => 'midtrans',
             'status_pembayaran' => 'belum_bayar',
@@ -120,6 +123,12 @@ class PemesananController extends Controller
                 'price' => (int) $properti->harga,
                 'quantity' => $request->lama_sewa,
                 'name' => $properti->nama . ' (' . $request->lama_sewa . ' bulan)',
+            ],
+            [
+                'id' => 'ADMIN_FEE',
+                'price' => (int) $biaya_admin,
+                'quantity' => 1,
+                'name' => 'Biaya Admin (0.5%)',
             ]
         ];
 
@@ -197,6 +206,12 @@ class PemesananController extends Controller
                         'price' => (int) $pemesanan->properti->harga,
                         'quantity' => $pemesanan->lama_sewa,
                         'name' => $pemesanan->properti->nama . ' (' . $pemesanan->lama_sewa . ' bulan)',
+                    ],
+                    [
+                        'id' => 'ADMIN_FEE',
+                        'price' => (int) $pemesanan->biaya_admin,
+                        'quantity' => 1,
+                        'name' => 'Biaya Admin (0.5%)',
                     ]
                 ];
 
@@ -294,6 +309,12 @@ class PemesananController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        // Sync payment status dari Midtrans sebelum tampilkan halaman
+        if ($pemesanan->status_pemesanan == 'pending' && $pemesanan->transaction_id) {
+            $this->syncPaymentStatus($pemesanan);
+            $pemesanan->refresh();
+        }
+
         return view('penyewa.pemesanan.success', compact('pemesanan'));
     }
 
@@ -308,13 +329,63 @@ class PemesananController extends Controller
 
         // Only allow cancel if status is pending and payment is not completed
         if ($pemesanan->status_pemesanan == 'pending' && $pemesanan->status_pembayaran == 'belum_bayar') {
-            // Delete the pemesanan
-            $pemesanan->delete();
+            // Cancel transaction in Midtrans if transaction_id exists
+            if ($pemesanan->transaction_id) {
+                try {
+                    \Midtrans\Config::$serverKey = config('midtrans.server_key');
+                    \Midtrans\Config::$isProduction = config('midtrans.is_production');
+                    \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
+                    \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
+
+                    // Cancel transaction via Midtrans API
+                    \Midtrans\Transaction::cancel($pemesanan->transaction_id);
+                } catch (\Exception $e) {
+                    \Log::error('Midtrans cancel error: ' . $e->getMessage());
+                    // Continue with cancellation even if Midtrans fails
+                }
+            }
+
+            // Update status to cancelled instead of deleting
+            $pemesanan->update([
+                'status_pemesanan' => 'cancelled',
+                'status_pembayaran' => 'belum_bayar'
+            ]);
+
+            // Check if there are any other confirmed bookings for this property
+            $hasActiveBooking = Pemesanan::where('id_properti', $pemesanan->id_properti)
+                ->where('status_pemesanan', 'confirmed')
+                ->where('status_pembayaran', 'sudah_bayar')
+                ->where('id_pemesanan', '!=', $pemesanan->id_pemesanan)
+                ->exists();
+
+            // If no active bookings, change property status back to 'tersedia'
+            if (!$hasActiveBooking) {
+                $pemesanan->properti->update(['status' => 'tersedia']);
+            }
             
             return redirect()->route('penyewa.pemesanan.index')->with('success', 'Pemesanan berhasil dibatalkan');
         }
 
         return redirect()->back()->with('error', 'Pemesanan tidak dapat dibatalkan');
+    }
+
+    public function destroy($id_pemesanan)
+    {
+        $pemesanan = Pemesanan::findOrFail($id_pemesanan);
+        
+        // Check authorization
+        if ($pemesanan->id_akun != Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Only allow delete if status is cancelled
+        if ($pemesanan->status_pemesanan == 'cancelled') {
+            $pemesanan->delete();
+            
+            return redirect()->route('penyewa.pemesanan.index')->with('success', 'Pemesanan berhasil dihapus');
+        }
+
+        return redirect()->back()->with('error', 'Hanya pemesanan yang dibatalkan yang dapat dihapus');
     }
 
     /**

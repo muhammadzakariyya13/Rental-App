@@ -25,7 +25,8 @@ class DashboardController extends Controller
         ->whereRaw('DATE_ADD(tanggal_pemesanan, INTERVAL lama_sewa MONTH) >= NOW()')
         ->count();
 
-        // PENDAPATAN ANALYTICS - DATA REAL dari Pemesanan
+        // PENDAPATAN ANALYTICS - DATA REAL dari Pemesanan (PENDAPATAN BERSIH PEMILIK)
+        // Total harga - Biaya admin (karena admin fee untuk platform)
         $monthlyIncome = Pemesanan::whereHas('properti', function($q) {
             $q->where('pemilik_id', Auth::id());
         })
@@ -33,7 +34,8 @@ class DashboardController extends Controller
         ->where('status_pembayaran', 'sudah_bayar')
         ->whereMonth('paid_at', now()->month)
         ->whereYear('paid_at', now()->year)
-        ->sum('total_harga');
+        ->selectRaw('SUM(total_harga - biaya_admin) as pendapatan_bersih')
+        ->value('pendapatan_bersih') ?? 0;
 
         $pendapatanTahunIni = Pemesanan::whereHas('properti', function($q) {
             $q->where('pemilik_id', Auth::id());
@@ -41,7 +43,8 @@ class DashboardController extends Controller
         ->where('status_pemesanan', 'confirmed')
         ->where('status_pembayaran', 'sudah_bayar')
         ->whereYear('paid_at', now()->year)
-        ->sum('total_harga');
+        ->selectRaw('SUM(total_harga - biaya_admin) as pendapatan_bersih')
+        ->value('pendapatan_bersih') ?? 0;
 
         // REVIEW DATA - Reviews yang belum dibalas
         $pendingReviews = Review::whereHas('properti', function($q) {
@@ -61,7 +64,7 @@ class DashboardController extends Controller
             ->count()
         ];
 
-        // CHART DATA untuk 12 bulan terakhir
+        // CHART DATA untuk 12 bulan terakhir (PENDAPATAN BERSIH)
         $chartData = [];
         for ($i = 11; $i >= 0; $i--) {
             $date = now()->subMonths($i);
@@ -72,7 +75,8 @@ class DashboardController extends Controller
             ->where('status_pembayaran', 'sudah_bayar')
             ->whereYear('paid_at', $date->year)
             ->whereMonth('paid_at', $date->month)
-            ->sum('total_harga');
+            ->selectRaw('SUM(total_harga - biaya_admin) as pendapatan_bersih')
+            ->value('pendapatan_bersih') ?? 0;
             
             $chartData[] = [
                 'month' => $date->format('M Y'),
@@ -80,7 +84,7 @@ class DashboardController extends Controller
             ];
         }
 
-        // TOP PROPERTIES dengan revenue dan booking count
+        // TOP PROPERTIES dengan revenue dan booking count (PENDAPATAN BERSIH)
         $propertyStats = Properti::where('pemilik_id', Auth::id())
             ->withCount(['pemesanan as total_bookings' => function($q) {
                 $q->where('status_pemesanan', 'confirmed');
@@ -91,7 +95,10 @@ class DashboardController extends Controller
             }])
             ->get()
             ->map(function($properti) {
-                $properti->total_revenue = $properti->pemesanan->sum('total_harga');
+                // Hitung pendapatan bersih (total - biaya admin)
+                $properti->total_revenue = $properti->pemesanan->sum(function($pemesanan) {
+                    return $pemesanan->total_harga - $pemesanan->biaya_admin;
+                });
                 $properti->avg_rating = $properti->reviews()->avg('rating') ?? 0;
                 return $properti;
             })

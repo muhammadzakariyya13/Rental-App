@@ -96,14 +96,6 @@
                     </div>
                     @endfor
                 </div>
-
-                <!-- Monthly Trend -->
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">📈 6 Month Trend</h3>
-                    <div class="h-48">
-                        <canvas id="monthlyChart"></canvas>
-                    </div>
-                </div>
             </div>
 
             <!-- Filters & Search -->

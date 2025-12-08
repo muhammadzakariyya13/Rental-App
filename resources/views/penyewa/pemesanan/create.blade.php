@@ -84,6 +84,14 @@
                                 <span class="text-gray-700">Durasi sewa:</span>
                                 <span class="font-semibold text-gray-900" id="durasiText">- bulan</span>
                             </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-700">Subtotal:</span>
+                                <span class="font-semibold text-gray-900" id="subtotalHarga">Rp 0</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-700">Biaya Admin (0.5%):</span>
+                                <span class="font-semibold text-gray-900" id="biayaAdmin">Rp 0</span>
+                            </div>
                             <div class="border-t border-sky-300 pt-2 mt-2">
                                 <div class="flex justify-between items-center">
                                     <span class="text-lg font-bold text-gray-900">Total Pembayaran:</span>
@@ -205,8 +213,13 @@
         const agreement = document.getElementById('agreement');
         
         if (lamaSewa) {
-            const total = hargaPerBulan * lamaSewa;
-            document.getElementById('totalHarga').textContent = 'Rp ' + total.toLocaleString('id-ID');
+            const subtotal = hargaPerBulan * lamaSewa;
+            const biayaAdmin = subtotal * 0.005; // 0.5%
+            const total = subtotal + biayaAdmin;
+            
+            document.getElementById('subtotalHarga').textContent = 'Rp ' + subtotal.toLocaleString('id-ID');
+            document.getElementById('biayaAdmin').textContent = 'Rp ' + Math.round(biayaAdmin).toLocaleString('id-ID');
+            document.getElementById('totalHarga').textContent = 'Rp ' + Math.round(total).toLocaleString('id-ID');
             document.getElementById('durasiText').textContent = lamaSewa + ' bulan';
             
             // Enable submit if agreement checked
@@ -214,6 +227,8 @@
                 submitBtn.disabled = false;
             }
         } else {
+            document.getElementById('subtotalHarga').textContent = 'Rp 0';
+            document.getElementById('biayaAdmin').textContent = 'Rp 0';
             document.getElementById('totalHarga').textContent = 'Rp 0';
             document.getElementById('durasiText').textContent = '- bulan';
             submitBtn.disabled = true;
